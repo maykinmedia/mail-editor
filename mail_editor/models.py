@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from mail_editor import settings
-from .mail_template import validate_template, Variable
+from .mail_template import validate_template
 
 
 @python_2_unicode_compatible
@@ -35,6 +35,7 @@ class MailTemplate(models.Model):
     body = models.TextField(_('body'), help_text=_('Add the body with {{variable}} placeholders'))
 
     CONFIG = {}
+    CHOICES = None
 
     class Meta:
         verbose_name = _('mail template')
@@ -42,27 +43,10 @@ class MailTemplate(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
-
-        conf = settings.MAIL_EDITOR_CONF
-        choices = [('', '------------------')]
-        if conf:
-            for key in conf:
-                values = conf.get(key)
-                subject_variables = []
-                for dict_variable in values.get('subject', []):
-                    subject_variables.append(Variable(dict_variable.get('variable'), required=dict_variable.get('required', True)))
-
-                body_variables = []
-                for dict_variable in values.get('body', []):
-                    body_variables.append(Variable(dict_variable.get('variable'), required=dict_variable.get('required', True)))
-                self.CONFIG[key] = {
-                    'subject': subject_variables,
-                    'body': body_variables
-                }
-                choices += [(key, values.get('name'))]
-
         fields = self._meta.get_field('template_type')
-        fields.choices = choices
+        fields.choices = settings.get_choices()
+
+        self.CONFIG = settings.get_config()
 
     def __str__(self):
         return self.template_type
