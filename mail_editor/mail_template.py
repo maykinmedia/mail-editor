@@ -95,6 +95,20 @@ class Variable(object):
     present in the mail template, but this can be enforced.
     """
 
-    def __init__(self, name, required=True):
+    def __init__(self, name, description='', required=True):
         self.name = name
+        self.description = description
         self.required = required
+
+    def get_html_list_item(self):
+        variable_string = '<li>'
+        if self.required:
+            variable_string += '*'
+
+        variable_string += '<b>{}</b>'.format(self.name)
+
+        if self.description:
+            variable_string += ': <i>{}</i>'.format(self.description)
+
+        variable_string += '</li>'
+        return variable_string

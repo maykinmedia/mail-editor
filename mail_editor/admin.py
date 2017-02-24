@@ -1,8 +1,8 @@
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
 
 from .forms import MailTemplateForm
 from .models import MailTemplate
+from .utils import variable_help_text
 
 
 @admin.register(MailTemplate)
@@ -12,12 +12,19 @@ class MailTemplateAdmin(admin.ModelAdmin):
     form = MailTemplateForm
 
     def get_fieldsets(self, request, obj=None):
+        description = ''
+
+        if request.POST.get('template_type'):
+            description = variable_help_text(request.POST.get('template_type'))
+        if obj:
+            description = obj.get_variable_help_text()
+
         fieldset = [
             ('', {
                 'fields': [
                     'template_type', 'remarks', 'subject', 'body'
                 ],
-                'description': obj.get_variable_help_text(),
+                'description': description,
             }),
         ]
         return fieldset

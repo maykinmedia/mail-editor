@@ -20,8 +20,17 @@ setup(
     packages=find_packages(exclude=["tests"]),
 
     # tests
-    test_suite='runtests.runtests',
-    tests_require=['coverage'],
+    setup_requires=['pytest-runner'],
+    tests_require=[
+        'factory-boy',
+        'psycopg2',
+        'pytest',
+        'pytest-cov',
+        'pytest-django',
+        'pytest-pep8',
+        'pytest-pylint',
+        'pytest-pythonpath',
+    ],
 
     # metadata
     description='A Django package for email template editing',
