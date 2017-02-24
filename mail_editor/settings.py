@@ -12,29 +12,16 @@ def get_choices():
 
 
 def get_config():
+
     config = {}
-    if MAIL_EDITOR_CONF:
-        for key in MAIL_EDITOR_CONF:
-            values = MAIL_EDITOR_CONF.get(key)
-            subject_variables = []
-            for var in values.get('subject', []):
-                subject_variables.append(Variable(**var))
     for key, values in settings.MAIL_EDITOR_CONF.items():
         subject_variables = []
-        for dict_variable in values.get('subject', []):
-            subject_variables.append(Variable(dict_variable.get('variable'), required=dict_variable.get('required', True)))
+        for var in values.get('subject', []):
+            subject_variables.append(Variable(**var))
 
-            body_variables = []
-            for var in values.get('body', []):
-                body_variables.append(Variable(**var))
-
-            config[key] = {
-                'subject': subject_variables,
-                'body': body_variables
-            }
         body_variables = []
-        for dict_variable in values.get('body', []):
-            body_variables.append(Variable(dict_variable.get('variable'), required=dict_variable.get('required', True)))
+        for var in values.get('body', []):
+            body_variables.append(Variable(**var))
 
         config[key] = {
             'subject': subject_variables,
