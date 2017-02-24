@@ -4,7 +4,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from mail_editor import settings
+from . import settings
 from .mail_template import validate_template
 
 

@@ -30,3 +30,5 @@ TEMPLATES = [
         'OPTIONS': {},
     },
 ]
+
+MAIL_EDITOR_CONF = {}
