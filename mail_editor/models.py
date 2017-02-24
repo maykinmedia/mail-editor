@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from mail_editor import settings
 from .mail_template import validate_template
+from .utils import variable_help_text
 
 
 @python_2_unicode_compatible
@@ -61,29 +62,4 @@ class MailTemplate(models.Model):
         return tpl_subject.render(ctx), tpl_body.render(ctx)
 
     def get_variable_help_text(self):
-        subject_html = 'Subject: <br><ul>'
-        body_html = 'Body: <br><ul>'
-
-        template_conf = self.CONFIG.get(self.template_type)
-        if template_conf:
-            subject_variables = template_conf.get('subject')
-            body_variables = template_conf.get('body')
-
-            if subject_variables:
-                for variable in subject_variables:
-                    if variable.required:
-                        subject_html += '<li>* {}</li>'.format(variable.name)
-                    else:
-                        subject_html += '<li>{}</li>'.format(variable.name)
-
-            if body_variables:
-                for variable in body_variables:
-                    if variable.required:
-                        body_html += '<li>* {}</li>'.format(variable.name)
-                    else:
-                        body_html += '<li>{}</li>'.format(variable.name)
-
-        subject_html += '</ul>'
-        body_html += '</ul>'
-
-        return mark_safe('{}<br><br>{}'.format(subject_html, body_html))
+        return variable_help_text(self.template_type)

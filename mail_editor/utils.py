@@ -14,17 +14,11 @@ def variable_help_text(template_type):
 
             if subject_variables:
                 for variable in subject_variables:
-                    if variable.required:
-                        subject_html += '<li>* {}</li>'.format(variable.name)
-                    else:
-                        subject_html += '<li>{}</li>'.format(variable.name)
+                    subject_html += variable.get_html_list_item()
 
             if body_variables:
                 for variable in body_variables:
-                    if variable.required:
-                        body_html += '<li>* {}</li>'.format(variable.name)
-                    else:
-                        body_html += '<li>{}</li>'.format(variable.name)
+                    body_html += variable.get_html_list_item()
 
         subject_html += '</ul>'
         body_html += '</ul>'

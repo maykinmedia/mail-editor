@@ -22,12 +22,13 @@ def get_config():
         for key in MAIL_EDITOR_CONF:
             values = MAIL_EDITOR_CONF.get(key)
             subject_variables = []
-            for dict_variable in values.get('subject', []):
-                subject_variables.append(Variable(dict_variable.get('variable'), required=dict_variable.get('required', True)))
+            for var in values.get('subject', []):
+                subject_variables.append(Variable(**var))
 
             body_variables = []
-            for dict_variable in values.get('body', []):
-                body_variables.append(Variable(dict_variable.get('variable'), required=dict_variable.get('required', True)))
+            for var in values.get('body', []):
+                body_variables.append(Variable(**var))
+
             config[key] = {
                 'subject': subject_variables,
                 'body': body_variables
