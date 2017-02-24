@@ -1,0 +1,28 @@
+# Python
+*.py[c|o]
+__pycache__
+
+# Emacs
+*~
+
+# Virtual env
+/env
+
+# Log files
+*.log
+/log/*.log.*
+
+.vscode/
+.tox/
+.eggs/
+htmlcov/
+.coverage
+
+\.cache/v/cache/lastfailed
+build
+dist
+mail_editor.egg-info
+.pypirc
+coverage\.xml
+
+junit\.xml
