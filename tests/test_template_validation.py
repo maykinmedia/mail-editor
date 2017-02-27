@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.test import TestCase
 
 import pytest
 
@@ -9,37 +11,39 @@ from mail_editor.mail_template import validate_template
 CONFIG = {
     'template': {
         'subject': [{
-            'variable': 'foo',
+            'name': 'foo',
             'required': True,
         }],
         'body': [{
-            'variable': 'bar',
+            'name': 'bar',
             'required': True,
         }],
     }
 }
 
+class TemplateValidationTests(TestCase):
+    def test_valid_template(self):
+        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+        template = MailTemplate(
+            template_type='template',
+            subject='{{ foo }}',
+            body='{{ bar }}'
+        )
+        try:
+            validate_template(template)
+        except ValidationError:
+            pytest.fail("Unexpected validationError")
 
-def test_valid_template(settings):
-    settings.MAIL_EDITOR_CONF = CONFIG.copy()
-    template = MailTemplate(
-        template_type='template',
-        subject='{{ foo }}',
-        body='{{ bar }}'
-    )
-    try:
-        validate_template(template)
-    except ValidationError:
-        pytest.fail("Unexpected validationError")
 
+    def test_template_syntax_error(self):
+        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+        template = MailTemplate(
+            template_type='template',
+            subject='{{ foo bar }}',
+            body='{{ bar }}'
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            validate_template(template)
 
-def test_template_syntax_error(settings):
-    settings.MAIL_EDITOR_CONF = CONFIG.copy()
-    template = MailTemplate(
-        template_type='template',
-        subject='{{ foo bar }}',
-        body='{{ bar }}'
-    )
-    with pytest.raises(ValidationError) as excinfo:
-        validate_template(template)
-    assert excinfo.value.error_code == 'syntax_error'
+        print(excinfo.value)
+        self.assertEqual(excinfo.value.error_code, 'syntax_error')

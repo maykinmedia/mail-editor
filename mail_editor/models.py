@@ -1,7 +1,6 @@
 from django.db import models
 from django.template import Template, Context
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from . import settings
@@ -44,8 +43,9 @@ class MailTemplate(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
-        fields = self._meta.get_field('template_type')
-        fields.choices = settings.get_choices()
+
+        # fields = self._meta.get_field('template_type')
+        # fields.choices = settings.get_choices()
 
         self.CONFIG = settings.get_config()
 
