@@ -33,7 +33,7 @@ class Mail(models.Model):
 class MailTemplate(models.Model):
     template_type = models.CharField(_('type'), max_length=50, unique=True)
 
-    remarks = models.TextField(_('remarks'), help_text=_('Extra information about the template'))
+    remarks = models.TextField(_('remarks'), blank=True, default='', help_text=_('Extra information about the template'))
     subject = models.CharField(_('subject'), max_length=255)
     body = models.TextField(_('body'), help_text=_('Add the body with {{variable}} placeholders'))
 
