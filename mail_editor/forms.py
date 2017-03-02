@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.sites.shortcuts import get_current_site
 from django.template import loader
 
 from ckeditor.widgets import CKEditorWidget
@@ -20,7 +21,8 @@ class MailTemplateForm(forms.ModelForm):
         super(MailTemplateForm, self).__init__(*args, **kwargs)
 
         template = loader.get_template('mail/_base.html')
-        self.fields['body'].initial = template.render({}, None)
+        current_site = get_current_site(None)
+        self.fields['body'].initial = template.render({'domain': current_site.domain}, None)
 
 
 class MailForm(forms.ModelForm):
