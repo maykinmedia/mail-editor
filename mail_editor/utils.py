@@ -4,8 +4,8 @@ from mail_editor import settings
 
 
 def variable_help_text(template_type):
-        subject_html = 'Subject: <br><ul>'
-        body_html = 'Body: <br><ul>'
+        subject_html = '<ul>'
+        body_html = '<label>Body variables:</label> <ul>'
 
         template_conf = settings.get_config().get(template_type)
         if template_conf:

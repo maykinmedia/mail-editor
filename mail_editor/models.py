@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
@@ -69,19 +71,31 @@ class MailTemplate(models.Model):
         subj_ctx = Context(subj_context)
         return tpl_subject.render(subj_ctx), tpl_body.render(ctx)
 
-    def send_email(self, to, context, subj_context=None, txt=False):
+    def send_email(self, to, context, subj_context=None, txt=False, attachments=None):
         """
         You can pass the context only. We will pass the context to the subject context when we don't
         have a subject context.
+        
+        @param attachments: List of tuples, where the tuple can be one of two forms:
+                            `(<absolute file path>, [mime type])` or
+                            `(<filename>, <content>, [mime type])`
         """
         subject, body = self.render(context, subj_context)
-        text_body = ''
-        if txt:
-            text_body = strip_tags(body)
+        text_body = txt or strip_tags(body)
 
         email_message = EmailMultiAlternatives(subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL, to=to)
         email_message.attach_alternative(body, 'text/html')
-        email_message.send()
+
+        if attachments:
+            for attachment in attachments:
+                if not attachment or not isinstance(attachment, tuple):
+                    raise ValueError('Attachments should be passed as a list of tuples.')
+                if os.path.isabs(attachment[0]):
+                    email_message.attach_file(*attachment)
+                else:
+                    email_message.attach(*attachment)
+
+        return email_message.send()
 
     def get_variable_help_text(self):
         return variable_help_text(self.template_type)
