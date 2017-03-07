@@ -1,15 +1,14 @@
+from django.conf import settings
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from .forms import MailTemplateForm
 from .models import MailTemplate
-from .utils import variable_help_text
 
 
 @admin.register(MailTemplate)
 class MailTemplateAdmin(admin.ModelAdmin):
-    list_display = ['template_type']
+    list_display = ['get_type_display', 'get_description']
     list_filter = ['template_type']
     readonly_fields = ('get_variable_help_text', )
     form = MailTemplateForm
@@ -28,6 +27,16 @@ class MailTemplateAdmin(admin.ModelAdmin):
             }),
         ]
         return fieldset
+
+    def get_type_display(self, obj):
+        conf = settings.MAIL_EDITOR_CONF.get(obj.template_type)
+        return conf.get('name')
+    get_type_display.short_description = _('Template Type')
+
+    def get_description(self, obj):
+        conf = settings.MAIL_EDITOR_CONF.get(obj.template_type)
+        return conf.get('description')
+    get_description.short_description = _('Type Description')
 
     def get_variable_help_text(self, obj):
         if not obj.template_type:
