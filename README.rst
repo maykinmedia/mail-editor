@@ -32,6 +32,17 @@ Warning
 
 This project is currently in development and not stable.
 
+Settings
+--------
+
+    CKEDITOR_CONFIGS = {
+        'mail_editor': {
+            'allowedContent': True,
+            'height': 600,
+        }
+    }
+
+
 Installation
 ------------
 
