@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
-from django.template import Context, Template
+from django.template import Context, Template, loader
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
@@ -75,13 +75,16 @@ class MailTemplate(models.Model):
         """
         You can pass the context only. We will pass the context to the subject context when we don't
         have a subject context.
-        
+
         @param attachments: List of tuples, where the tuple can be one of two forms:
                             `(<absolute file path>, [mime type])` or
                             `(<filename>, <content>, [mime type])`
         """
         subject, body = self.render(context, subj_context)
         text_body = txt or strip_tags(body)
+
+        template = loader.get_template('mail/_base.html')
+        body = template.render({'content': body}, None)
 
         email_message = EmailMultiAlternatives(subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL, to=to)
         email_message.attach_alternative(body, 'text/html')

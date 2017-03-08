@@ -6,6 +6,29 @@
 
     <!-- Fallback styling only, use inline -->
     <style>
+        #outlook a{
+			padding:0;
+		}
+        body{
+			width:100% !important;
+		}
+		body{
+			-webkit-text-size-adjust:none;
+		}
+		body{
+			margin:0;
+			padding:0;
+		}
+		img{
+			border:none;
+			font-size:14px;
+			font-weight:bold;
+			height:auto;
+			line-height:100%;
+			outline:none;
+			text-decoration:none;
+			text-transform:capitalize;
+		}
         a {
             color: #059EC2;
         }
@@ -40,38 +63,7 @@
 ">
 
 <center>
-    <!-- Outer table, margins/content -->
-    <table border="0" cellpadding="0" cellspacing="0" style="
-        width: 100%;
-        max-width: 580px;
-    ">
-        <tr>
-            <td width="20"></td><!-- Padding, left -->
-
-            <td>
-                <!-- Inner table, content -->
-                <table border="0" cellpadding="0" cellspacing="0" style="
-                    width: 100%;
-                    max-width: 540px;
-                ">
-                    <tr>
-                        <td style="
-                                border-bottom: 1px dashed #B3B3B3;
-                                padding: 0;
-                            "
-                            valign="middle">
-
-                            Your content here...
-                        </td>
-                    </tr>
-                </table>
-                <!-- End inner table -->
-            </td>
-
-            <td width="20"></td><!-- Padding, right -->
-        </tr>
-    </table>
-    <!-- End outer table -->
+{{ content }}
 </center>
 </body>
 </html>

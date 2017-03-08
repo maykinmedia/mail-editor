@@ -4,8 +4,8 @@ from django.template import loader
 
 from ckeditor.widgets import CKEditorWidget
 
-from .settings import get_choices
 from .models import Mail, MailTemplate
+from .settings import get_choices
 
 
 class MailTemplateForm(forms.ModelForm):
@@ -20,7 +20,7 @@ class MailTemplateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(MailTemplateForm, self).__init__(*args, **kwargs)
 
-        template = loader.get_template('mail/_base.html')
+        template = loader.get_template('mail/_outer_table.html')
         current_site = get_current_site(None)
         self.fields['body'].initial = template.render({'domain': current_site.domain}, None)
 
