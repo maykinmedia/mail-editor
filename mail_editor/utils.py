@@ -1,13 +1,13 @@
 from django.utils.safestring import mark_safe
 
-from mail_editor import settings
+from .settings import get_config
 
 
 def variable_help_text(template_type):
         subject_html = '<ul>'
         body_html = '<label>Body variables:</label> <ul>'
 
-        template_conf = settings.get_config().get(template_type)
+        template_conf = get_config().get(template_type)
         if template_conf:
             subject_variables = template_conf.get('subject')
             body_variables = template_conf.get('body')

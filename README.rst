@@ -39,7 +39,7 @@ You can use the templates in some different ways. The shortest way is:
 
 .. code:: python
 
-    from mail_editor import find_template
+    from mail_editor.helpers import find_template
 
     def email_stuff():
         template = find_template('activation')

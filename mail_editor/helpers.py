@@ -4,7 +4,7 @@ from django.template import loader
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from mail_editor.models import MailTemplate
+from .models import MailTemplate
 
 
 def find_template(template_name):

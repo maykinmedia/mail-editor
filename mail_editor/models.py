@@ -30,10 +30,6 @@ class MailTemplate(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
-
-        # fields = self._meta.get_field('template_type')
-        # fields.choices = get_choices()
-
         self.CONFIG = get_config()
 
     def __str__(self):
@@ -53,7 +49,7 @@ class MailTemplate(models.Model):
         subj_ctx = Context(subj_context)
         return tpl_subject.render(subj_ctx), tpl_body.render(ctx)
 
-    def send_email(self, to, context, subj_context=None, txt=False, attachments=None):
+    def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None):
         """
         You can pass the context only. We will pass the context to the subject context when we don't
         have a subject context.
@@ -68,7 +64,7 @@ class MailTemplate(models.Model):
         template = loader.get_template('mail/_base.html')
         body = template.render({'content': body}, None)
 
-        email_message = EmailMultiAlternatives(subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL, to=to)
+        email_message = EmailMultiAlternatives(subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL, to=to_addresses)
         email_message.attach_alternative(body, 'text/html')
 
         if attachments:

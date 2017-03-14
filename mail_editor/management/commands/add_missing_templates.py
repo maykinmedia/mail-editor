@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from mail_editor import find_template
-from mail_editor.settings import get_choices
+from ...helpers import find_template
+from ...settings import get_choices
 
 
 class Command(BaseCommand):
