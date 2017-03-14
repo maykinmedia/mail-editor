@@ -47,7 +47,11 @@ class MailTemplate(models.Model):
 
         ctx = Context(context)
         subj_ctx = Context(subj_context)
-        return tpl_subject.render(subj_ctx), tpl_body.render(ctx)
+
+        partial_body = tpl_body.render(ctx)
+        template = loader.get_template('mail/_base.html')
+        body = template.render({'content': partial_body}, None)
+        return tpl_subject.render(subj_ctx), body
 
     def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None):
         """
@@ -60,9 +64,6 @@ class MailTemplate(models.Model):
         """
         subject, body = self.render(context, subj_context)
         text_body = txt or strip_tags(body)
-
-        template = loader.get_template('mail/_base.html')
-        body = template.render({'content': body}, None)
 
         email_message = EmailMultiAlternatives(subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL, to=to_addresses)
         email_message.attach_alternative(body, 'text/html')
