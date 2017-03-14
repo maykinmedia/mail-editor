@@ -35,7 +35,9 @@ This project is currently in development and not stable.
 Using the template
 --------------------
 
-You can use the templates in some different ways. The shortest way is::
+You can use the templates in some different ways. The shortest way is:
+
+.. code:: python
 
     from mail_editor import find_template
 
@@ -53,7 +55,9 @@ You can use the templates in some different ways. The shortest way is::
 Settings
 --------
 
-The following settings are mandatory::
+The following settings are mandatory:
+
+.. code:: python
 
     MAIL_EDITOR_CONF = {
         'activation': {
@@ -85,7 +89,9 @@ The following settings are mandatory::
         ...
     }
 
-These settings are usefull to add::
+These settings are usefull to add:
+
+.. code:: python
 
     CKEDITOR_CONFIGS = {
         'mail_editor': {
@@ -98,12 +104,16 @@ These settings are usefull to add::
 Installation
 ------------
 
-Install with pip::
+Install with pip:
+
+.. code:: shell
 
     pip install mail_editor
 
 
-Add *'mail_editor'* to the installed apps::
+Add *'mail_editor'* to the installed apps:
+
+.. code:: python
 
     # settings.py
 
@@ -116,3 +126,5 @@ Add *'mail_editor'* to the installed apps::
 .. _Django Yubin: https://github.com/APSL/django-yubin
 .. _Sergei Maertens: https://github.com/sergei-maertens
 .. _langerak-gkv: https://github.com/sergei-maertens/langerak-gkv/blob/master/src/langerak_gkv/mailing/mail_template.py
+.. role:: python(code)
+    :language: python
