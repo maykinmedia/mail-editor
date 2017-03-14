@@ -32,13 +32,65 @@ Warning
 
 This project is currently in development and not stable.
 
+Using the template
+--------------------
+
+You can use the templates in some different ways. The shortest way is::
+
+    from mail_editor import find_template
+
+    def email_stuff():
+        template = find_template('activation')
+
+        context = {
+            'name': 'Test Person',
+            'site_name': 'This site',
+            'activation_link': 'https://github.com/maykinmedia/mail-editor',
+        }
+
+        template.send_email('test@example.com', context)
+
 Settings
 --------
+
+The following settings are mandatory::
+
+    MAIL_EDITOR_CONF = {
+        'activation': {
+            'name': ugettext_noop('Activation Email'),
+            'description': ugettext_noop('This email is used when people need to activate their account.'),
+            'subject_default': 'Activeer uw account voor {{site_name}}',
+            'body_default': """
+                <h1>Hallo {{ name }},</h1>
+
+                <p>Welkom! Je hebt je geregistreerd voor een {{ site_name }} account.</p>
+
+                <p>{{ activation_link }}</p>
+            """,
+            'subject': [{
+                'name': 'site_name',
+                'description': ugettext_noop('This is the name of the site. From the sites'),
+            }],
+            'body': [{
+                'name': 'name',
+                'description': ugettext_noop('This is the name of the user'),
+            }, {
+                'name': 'site_name',
+                'description': ugettext_noop('This is the name of the site. From the sites'),
+            }, {
+                'name': 'activation_link',
+                'description': ugettext_noop('This is the link to activate their account.'),
+            }]
+        },
+        ...
+    }
+
+These settings are usefull to add::
 
     CKEDITOR_CONFIGS = {
         'mail_editor': {
             'allowedContent': True,
-            'height': 600,
+            'height': 600,  # This is optional
         }
     }
 

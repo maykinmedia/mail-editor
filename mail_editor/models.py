@@ -14,24 +14,6 @@ from .utils import variable_help_text
 
 
 @python_2_unicode_compatible
-class Mail(models.Model):
-    to = models.TextField()
-    cc = models.TextField(blank=True)
-    bcc = models.TextField(blank=True)
-    subject = models.CharField(max_length=255)
-    body = models.TextField()
-    sent = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = _('email')
-        verbose_name_plural = _('emails')
-        ordering = ('-pk',)
-
-    def __str__(self):
-        return self.subject
-
-
-@python_2_unicode_compatible
 class MailTemplate(models.Model):
     template_type = models.CharField(_('type'), max_length=50, unique=True)
 

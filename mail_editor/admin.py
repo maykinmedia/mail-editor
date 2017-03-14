@@ -8,7 +8,7 @@ from .models import MailTemplate
 
 @admin.register(MailTemplate)
 class MailTemplateAdmin(admin.ModelAdmin):
-    list_display = ['get_type_display', 'get_description']
+    list_display = ['get_type_display', 'get_description', 'subject']
     list_filter = ['template_type']
     readonly_fields = ('get_variable_help_text', )
     form = MailTemplateForm

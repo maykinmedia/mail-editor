@@ -4,7 +4,7 @@ from django.template import loader
 
 from ckeditor.widgets import CKEditorWidget
 
-from .models import Mail, MailTemplate
+from .models import MailTemplate
 from .settings import get_choices
 
 
@@ -23,12 +23,3 @@ class MailTemplateForm(forms.ModelForm):
         template = loader.get_template('mail/_outer_table.html')
         current_site = get_current_site(None)
         self.fields['body'].initial = template.render({'domain': current_site.domain}, None)
-
-
-class MailForm(forms.ModelForm):
-    class Meta:
-        model = Mail
-        fields = ('to', 'cc', 'bcc', 'subject', 'body')
-        widgets = {
-            'body': CKEditorWidget(config_name='mail_editor'),
-        }

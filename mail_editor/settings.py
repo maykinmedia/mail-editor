@@ -4,7 +4,6 @@ from .mail_template import Variable
 
 
 def get_choices():
-
     choices = []
     for key, values in settings.MAIL_EDITOR_CONF.items():
         choices += [(key, values.get('name'))]
@@ -12,7 +11,6 @@ def get_choices():
 
 
 def get_config():
-
     config = {}
     for key, values in settings.MAIL_EDITOR_CONF.items():
         subject_variables = []
