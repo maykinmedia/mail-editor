@@ -7,14 +7,15 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='mail_editor',
-    version='0.1.7',
+    version='0.1.8',
     license='BSD',
 
     # packaging
     install_requires=[
         'Django>=1.8',
         'django-choices',
-        'django-ckeditor'
+        'django-ckeditor',
+        'premailer'
     ],
     include_package_data=True,
     packages=find_packages(exclude=["tests"]),

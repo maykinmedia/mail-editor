@@ -1,6 +1,9 @@
 import os
+import logging
+import premailer
 
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.template import Context, Template, loader
@@ -11,6 +14,8 @@ from django.utils.translation import ugettext_lazy as _
 from .mail_template import validate_template
 from .settings import get_config
 from .utils import variable_help_text
+
+logger = logging.getLogger(__name__)
 
 
 @python_2_unicode_compatible
@@ -50,8 +55,13 @@ class MailTemplate(models.Model):
 
         partial_body = tpl_body.render(ctx)
         template = loader.get_template('mail/_base.html')
-        body = template.render({'content': partial_body}, None)
-        return tpl_subject.render(subj_ctx), body
+        current_site = get_current_site(None)
+        body = template.render({'domain': current_site.domain, 'content': partial_body}, None)
+        logger.debug("Rendered body: %s", body)
+        pre_mail = premailer.Premailer(body)
+        inline_body = pre_mail.transform()
+        logger.debug("Rendered inline body: %s", inline_body)
+        return tpl_subject.render(subj_ctx), inline_body
 
     def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None):
         """
