@@ -58,7 +58,7 @@ class MailTemplate(models.Model):
         current_site = get_current_site(None)
         body = template.render({'domain': current_site.domain, 'content': partial_body}, None)
         logger.debug("Rendered body: %s", body)
-        pre_mail = premailer.Premailer(body)
+        pre_mail = premailer.Premailer(body, disable_validation=True)
         inline_body = pre_mail.transform()
         logger.debug("Rendered inline body: %s", inline_body)
         return tpl_subject.render(subj_ctx), inline_body
