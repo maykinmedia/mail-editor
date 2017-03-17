@@ -44,6 +44,8 @@ class MailTemplate(models.Model):
         env = os.environ.copy()
         if 'VIRTUAL_ENV' in env:
             env['BIN_ENV'] = '{}/bin/'.format(env.get('VIRTUAL_ENV'))
+        else:
+            logger.exception("VIRTUAL_ENV not found, {}".format(env))
         self.env = env
 
     def __str__(self):
@@ -69,10 +71,11 @@ class MailTemplate(models.Model):
 
         with NamedTemporaryFile() as temp_file:
             temp_file.write(bytes(body, 'UTF-8'))
+            extra_env = self.env
             process = subprocess.Popen(
                 "inject-inline-styles.js {}".format(temp_file.name), shell=True,
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                env=self.env, universal_newlines=True, cwd=self._package_json_dir
+                env=extra_env, universal_newlines=True, cwd=self._package_json_dir
             )
 
             out, err = process.communicate()
