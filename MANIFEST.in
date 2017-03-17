@@ -1,4 +1,4 @@
 include LICENSE
 include README.rst
 recursive-include mail_editor/templates *
-include bin/inject-inline-styles.js
+recursive-include bin *
