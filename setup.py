@@ -15,9 +15,9 @@ setup(
         'Django>=1.8',
         'django-choices',
         'django-ckeditor',
-        'premailer'
     ],
     include_package_data=True,
+    scripts=['bin/inject-inline-styles.js'],
     packages=find_packages(exclude=["tests"]),
 
     # tests

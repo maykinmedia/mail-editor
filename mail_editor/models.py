@@ -1,6 +1,7 @@
-import os
 import logging
-import premailer
+import os
+import subprocess
+from tempfile import NamedTemporaryFile
 
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
@@ -9,9 +10,11 @@ from django.db import models
 from django.template import Context, Template, loader
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from .mail_template import validate_template
+from .node import locate_package_json
 from .settings import get_config
 from .utils import variable_help_text
 
@@ -36,6 +39,7 @@ class MailTemplate(models.Model):
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
         self.CONFIG = get_config()
+        self._package_json_dir = os.path.dirname(locate_package_json())
 
     def __str__(self):
         return self.template_type
@@ -57,11 +61,20 @@ class MailTemplate(models.Model):
         template = loader.get_template('mail/_base.html')
         current_site = get_current_site(None)
         body = template.render({'domain': current_site.domain, 'content': partial_body}, None)
-        logger.debug("Rendered body: %s", body)
-        pre_mail = premailer.Premailer(body, disable_validation=True)
-        inline_body = pre_mail.transform()
-        logger.debug("Rendered inline body: %s", inline_body)
-        return tpl_subject.render(subj_ctx), inline_body
+
+        with NamedTemporaryFile() as temp_file:
+            temp_file.write(bytes(body, 'UTF-8'))
+            process = subprocess.Popen(
+                "inject-inline-styles.js {}".format(temp_file.name), shell=True,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                universal_newlines=True, cwd=self._package_json_dir
+            )
+
+            out, err = process.communicate()
+            if err:
+                raise Exception(err)
+
+            return tpl_subject.render(subj_ctx), mark_safe(out)
 
     def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None):
         """

@@ -32,6 +32,16 @@ Warning
 
 This project is currently in development and not stable.
 
+Used NPM packages
+-----------------
+
+This package uses NPM. This is to inject the inline styles and minify the HTML
+
+..code::shell
+
+    npm install --save inline-css
+    npm install --save htmlmin
+
 Using the template
 --------------------
 
