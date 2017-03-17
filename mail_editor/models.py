@@ -41,6 +41,11 @@ class MailTemplate(models.Model):
         self.CONFIG = get_config()
         self._package_json_dir = os.path.dirname(locate_package_json())
 
+        env = os.environ.copy()
+        if 'VIRTUAL_ENV' in env:
+            env['BIN_ENV'] = '{}/bin/'.format(env.get('VIRTUAL_ENV'))
+        self.env = env
+
     def __str__(self):
         return self.template_type
 
@@ -67,7 +72,7 @@ class MailTemplate(models.Model):
             process = subprocess.Popen(
                 "inject-inline-styles.js {}".format(temp_file.name), shell=True,
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                universal_newlines=True, cwd=self._package_json_dir
+                env=self.env, universal_newlines=True, cwd=self._package_json_dir
             )
 
             out, err = process.communicate()
