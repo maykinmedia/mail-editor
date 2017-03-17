@@ -43,7 +43,7 @@ class MailTemplate(models.Model):
 
         env = os.environ.copy()
         if 'VIRTUAL_ENV' in env:
-            env['BIN_ENV'] = '{}/bin/'.format(env.get('VIRTUAL_ENV'))
+            env['PATH'] = '{}:{}/bin/'.format(env['PATH'], env.get('VIRTUAL_ENV'))
         else:
             logger.exception("VIRTUAL_ENV not found, {}".format(env))
         self.env = env
