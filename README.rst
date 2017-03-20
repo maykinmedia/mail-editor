@@ -69,6 +69,8 @@ The following settings are mandatory:
 
 .. code:: python
 
+    PACKAGE_JSON_DIR = '/path/to/the/package.json'
+
     MAIL_EDITOR_CONF = {
         'activation': {
             'name': ugettext_noop('Activation Email'),
