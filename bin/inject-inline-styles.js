@@ -1,13 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Utility script to leverage jpsm/SystemJS' power to build the depcache
- * for a given package.
- *
- * This traces the module and extracts the relative paths to all the
- * files used.
- */
-
 var fs = require('fs');
 var inlineCss = require('inline-css');
 var htmlmin = require('htmlmin');
