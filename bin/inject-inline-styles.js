@@ -21,6 +21,8 @@ var inline_options = {
     removeStyleTags: true,
     preserveMediaQueries: true,
     removeLinkTags: false,
+    applyWidthAttributes: true,
+    applyTableAttributes: true,
     url: 'http://localhost:8000'
 };
 
