@@ -70,6 +70,8 @@ The following settings are mandatory:
 .. code:: python
 
     PACKAGE_JSON_DIR = '/path/to/the/package.json'
+    ADD_BIN_PATH = True or False
+    BIN_PATH = 'path/to/virtualenv/bin'
 
     MAIL_EDITOR_CONF = {
         'activation': {

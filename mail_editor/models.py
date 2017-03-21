@@ -42,10 +42,9 @@ class MailTemplate(models.Model):
         self._package_json_dir = os.path.dirname(locate_package_json())
 
         env = os.environ.copy()
-        if 'VIRTUAL_ENV' in env:
-            env['PATH'] = '{}:{}/bin/'.format(env['PATH'], env.get('VIRTUAL_ENV'))
-        else:
-            logger.exception("VIRTUAL_ENV not found, {}".format(env))
+        if settings.ADD_BIN_PATH:
+            env['PATH'] = '{}:{}/bin/'.format(env['PATH'], settings.BIN_PATH)
+
         self.env = env
 
     def __str__(self):
