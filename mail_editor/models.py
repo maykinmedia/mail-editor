@@ -43,8 +43,7 @@ class MailTemplate(models.Model):
 
         env = os.environ.copy()
         if settings.ADD_BIN_PATH:
-            env['PATH'] = '{}:{}/bin/'.format(env['PATH'], settings.BIN_PATH)
-
+            env['PATH'] = '{}:{}'.format(env['PATH'], settings.BIN_PATH)
         self.env = env
 
     def __str__(self):
