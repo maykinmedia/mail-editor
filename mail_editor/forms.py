@@ -23,9 +23,9 @@ class MailTemplateForm(forms.ModelForm):
 
         template = loader.get_template('mail/_outer_table.html')
         # TODO: This only works when sites-framework is installed.
-        if apps.is_installed('django.contrib.sites'):
+        try:
             current_site = get_current_site(None)
             domain = current_site.domain
-        else:
+        except Exception as e:
             domain = ''
         self.fields['body'].initial = template.render({'domain': domain}, None)

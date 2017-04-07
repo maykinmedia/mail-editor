@@ -84,8 +84,12 @@ class MailTemplate(models.Model):
 
         partial_body = tpl_body.render(ctx)
         template = loader.get_template('mail/_base.html')
-        current_site = get_current_site(None)
-        body = template.render({'domain': current_site.domain, 'content': partial_body}, None)
+        try:
+            current_site = get_current_site(None)
+            domain = current_site.domain
+        except Exception as e:
+            domain = ''
+        body = template.render({'domain': domain, 'content': partial_body}, None)
 
         # TODO: I made the package.json stuff optional. Maybe it should be removed completely since it adds 3 settings,
         # seems for a limited use-case, and it uses subproces...
