@@ -3,7 +3,7 @@ import os
 import subprocess
 from tempfile import NamedTemporaryFile
 
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
@@ -14,10 +14,11 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from . import settings
 from .mail_template import validate_template
 from .node import locate_package_json
-from .settings import get_config
 from .utils import variable_help_text
+
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ class MailTemplateManager(models.Manager):
 @python_2_unicode_compatible
 class MailTemplate(models.Model):
     template_type = models.CharField(_('type'), max_length=50)
-    language = models.CharField(max_length=10, choices=settings.LANGUAGES, blank=True)
+    language = models.CharField(max_length=10, choices=django_settings.LANGUAGES, blank=True)
 
     remarks = models.TextField(_('remarks'), blank=True, default='', help_text=_('Extra information about the template'))
     subject = models.CharField(_('subject'), max_length=255)
@@ -63,13 +64,7 @@ class MailTemplate(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
-        self.CONFIG = get_config()
-        self._package_json_dir = os.path.dirname(locate_package_json())
-
-        env = os.environ.copy()
-        if settings.ADD_BIN_PATH:
-            env['PATH'] = '{}:{}'.format(env['PATH'], settings.BIN_PATH)
-        self.env = env
+        self.CONFIG = settings.get_config()
 
     def __str__(self):
         return self.template_type
@@ -92,20 +87,27 @@ class MailTemplate(models.Model):
         current_site = get_current_site(None)
         body = template.render({'domain': current_site.domain, 'content': partial_body}, None)
 
-        with NamedTemporaryFile() as temp_file:
-            temp_file.write(bytes(body, 'UTF-8'))
-            extra_env = self.env
-            process = subprocess.Popen(
-                "inject-inline-styles.js {}".format(temp_file.name), shell=True,
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                env=extra_env, universal_newlines=True, cwd=self._package_json_dir
-            )
+        # TODO: I made the package.json stuff optional. Maybe it should be removed completely since it adds 3 settings,
+        # seems for a limited use-case, and it uses subproces...
+        package_json = locate_package_json()
+        if package_json:
+            env = os.environ.copy()
+            if settings.ADD_BIN_PATH:
+                env['PATH'] = '{}:{}'.format(env['PATH'], settings.BIN_PATH)
 
-            out, err = process.communicate()
-            if err:
-                raise Exception(err)
+            with NamedTemporaryFile() as temp_file:
+                temp_file.write(bytes(body, 'UTF-8'))
+                process = subprocess.Popen(
+                    "inject-inline-styles.js {}".format(temp_file.name), shell=True,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    env=env, universal_newlines=True, cwd=os.path.dirname(package_json)
+                )
 
-            return tpl_subject.render(subj_ctx), mark_safe(out)
+                body, err = process.communicate()
+                if err:
+                    raise Exception(err)
+
+        return tpl_subject.render(subj_ctx), mark_safe(body)
 
     def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None):
         """
@@ -119,7 +121,7 @@ class MailTemplate(models.Model):
         subject, body = self.render(context, subj_context)
         text_body = txt or strip_tags(body)
 
-        email_message = EmailMultiAlternatives(subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL, to=to_addresses)
+        email_message = EmailMultiAlternatives(subject=subject, body=text_body, from_email=django_settings.DEFAULT_FROM_EMAIL, to=to_addresses)
         email_message.attach_alternative(body, 'text/html')
 
         if attachments:
