@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
+from django.db.models import Q
 from django.template import Context, Template, loader
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
@@ -21,13 +22,36 @@ from .utils import variable_help_text
 logger = logging.getLogger(__name__)
 
 
+class MailTemplateManager(models.Manager):
+    def get_for_language(self, template_type, language):
+        """
+        Returns the `MailTemplate` for the given type in the given language. If the language does not exist, it
+        attempts to find and return the fallback (no language) instance.
+        
+        :param template_type:
+        :param language: 
+        :return: 
+        """
+        mail_template = self.filter(
+            template_type=template_type
+        ).filter(
+            Q(language=language)|Q(language='')
+        ).order_by('-language').first()
+        if mail_template is None:
+            raise MailTemplate.DoesNotExist()
+        return mail_template
+
+
 @python_2_unicode_compatible
 class MailTemplate(models.Model):
-    template_type = models.CharField(_('type'), max_length=50, unique=True)
+    template_type = models.CharField(_('type'), max_length=50)
+    language = models.CharField(max_length=10, choices=settings.LANGUAGES, blank=True)
 
     remarks = models.TextField(_('remarks'), blank=True, default='', help_text=_('Extra information about the template'))
     subject = models.CharField(_('subject'), max_length=255)
     body = models.TextField(_('body'), help_text=_('Add the body with {{variable}} placeholders'))
+
+    objects = MailTemplateManager()
 
     CONFIG = {}
     CHOICES = None
@@ -35,6 +59,7 @@ class MailTemplate(models.Model):
     class Meta:
         verbose_name = _('mail template')
         verbose_name_plural = _('mail templates')
+        unique_together = (('template_type', 'language'), )
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)

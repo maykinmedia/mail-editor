@@ -17,7 +17,7 @@ class MailTemplateAdmin(admin.ModelAdmin):
         fieldset = [
             (None, {
                 'fields': [
-                    'template_type', 'subject', 'body',
+                    'template_type', 'language', 'subject', 'body',
                 ],
             }),
             (_('Help'), {
