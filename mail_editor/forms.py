@@ -1,4 +1,5 @@
 from django import forms
+from django.apps import apps
 from django.contrib.sites.shortcuts import get_current_site
 from django.template import loader
 
@@ -21,5 +22,10 @@ class MailTemplateForm(forms.ModelForm):
         super(MailTemplateForm, self).__init__(*args, **kwargs)
 
         template = loader.get_template('mail/_outer_table.html')
-        current_site = get_current_site(None)
-        self.fields['body'].initial = template.render({'domain': current_site.domain}, None)
+        # TODO: This only works when sites-framework is installed.
+        try:
+            current_site = get_current_site(None)
+            domain = current_site.domain
+        except Exception as e:
+            domain = ''
+        self.fields['body'].initial = template.render({'domain': domain}, None)
