@@ -3,10 +3,11 @@ MailEditor
 
 .. image:: https://travis-ci.org/maykinmedia/mail-editor.svg?branch=master
     :target: https://travis-ci.org/maykinmedia/mail-editor
-[![codecov](https://codecov.io/gh/maykinmedia/mail_editor/branch/master/graph/badge.svg)](https://codecov.io/gh/maykinmedia/mail_editor)
 .. image:: https://lintly.com/gh/maykinmedia/mail-editor/badge.svg
     :target: https://lintly.com/gh/maykinmedia/mail-editor/
     :alt: Lintly
+
+[![codecov](https://codecov.io/gh/maykinmedia/mail_editor/branch/master/graph/badge.svg)](https://codecov.io/gh/maykinmedia/mail_editor)
 
 Django e-mail templates!
 
