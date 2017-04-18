@@ -1,9 +1,12 @@
 MailEditor
 ==========
 
-[![Build Status](https://travis-ci.org/maykinmedia/mail_editor.svg?branch=master)](https://travis-ci.org/maykinmedia/mail_editor)
+.. image:: https://travis-ci.org/maykinmedia/mail-editor.svg?branch=master
+    :target: https://travis-ci.org/maykinmedia/mail-editor
 [![codecov](https://codecov.io/gh/maykinmedia/mail_editor/branch/master/graph/badge.svg)](https://codecov.io/gh/maykinmedia/mail_editor)
-[![Lintly](https://lintly.com/gh/maykinmedia/mail_editor/badge.svg)](https://lintly.com/gh/maykinmedia/mail_editor/)
+.. image:: https://lintly.com/gh/maykinmedia/mail-editor/badge.svg
+    :target: https://lintly.com/gh/maykinmedia/mail-editor/
+    :alt: Lintly
 
 Django e-mail templates!
 
