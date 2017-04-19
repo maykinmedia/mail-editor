@@ -2,7 +2,6 @@
 
 var fs = require('fs');
 var inlineCss = require('inline-css');
-var htmlmin = require('htmlmin');
 var minify = require('html-minifier').minify;
 
 
