@@ -30,7 +30,9 @@ class MailTemplateValidator(object):
             error_tpl = """
                 <p>{{ error }}</p>
 
-                {{ source|linenumbers|linebreaks }}
+                {% if source %}
+                    {{ source|linenumbers|linebreaks }}
+                {% endif %}
             """
             if hasattr(exc, 'django_template_source'):
                 source = exc.django_template_source[0].source
@@ -38,8 +40,11 @@ class MailTemplateValidator(object):
                 highlighted_pz = ">>>>{0}<<<<".format(source[pz[0]:pz[1]])
                 source = '{0}{1}{2}'.format(source[:pz[0]], highlighted_pz, source[pz[1]:])
                 _error = _('TemplateSyntaxError: {0}').format(exc.args[0])
+            elif hasattr(exc, 'template_debug'):
+                _error = _('TemplateSyntaxError: {0}').format(exc.template_debug.get('message'))
+                source = '{}'.format(exc.template_debug.get('during'))
             else:
-                _error = None
+                _error = exc
                 source = None
             error = Template(error_tpl).render(Context({'error': _error, 'source': source}))
             raise ValidationError(error, code='syntax_error')

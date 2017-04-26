@@ -132,7 +132,9 @@ These settings are usefull to add:
     CKEDITOR_CONFIGS = {
         'mail_editor': {
             'allowedContent': True,
+            'contentsCss': ['/static/css/email.css'], # Enter the css file used to style the email.
             'height': 600,  # This is optional
+            'entities': False,
         }
     }
 
