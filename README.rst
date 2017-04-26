@@ -134,7 +134,7 @@ These settings are usefull to add:
             'allowedContent': True,
             'contentsCss': ['/static/css/email.css'], # Enter the css file used to style the email.
             'height': 600,  # This is optional
-            'entities': False, # This is added because CKEDITOR escapes the ' when you do an if query
+            'entities': False, # This is added because CKEDITOR escapes the ' when you do an if statement
         }
     }
 
