@@ -1,8 +1,12 @@
 from django import forms
+from django.apps import apps
+from django.contrib.sites.shortcuts import get_current_site
+from django.template import loader
 
 from ckeditor.widgets import CKEditorWidget
 
-from .models import Mail, MailTemplate
+from .models import MailTemplate
+from .settings import get_choices
 
 
 class MailTemplateForm(forms.ModelForm):
@@ -11,13 +15,17 @@ class MailTemplateForm(forms.ModelForm):
         fields = ('template_type', 'remarks', 'subject', 'body')
         widgets = {
             'body': CKEditorWidget(config_name='mail_editor'),
+            'template_type': forms.Select(choices=get_choices())
         }
 
+    def __init__(self, *args, **kwargs):
+        super(MailTemplateForm, self).__init__(*args, **kwargs)
 
-class MailForm(forms.ModelForm):
-    class Meta:
-        model = Mail
-        fields = ('to', 'cc', 'bcc', 'subject', 'body')
-        widgets = {
-            'body': CKEditorWidget(config_name='mail_editor'),
-        }
+        template = loader.get_template('mail/_outer_table.html')
+        # TODO: This only works when sites-framework is installed.
+        try:
+            current_site = get_current_site(None)
+            domain = current_site.domain
+        except Exception as e:
+            domain = ''
+        self.fields['body'].initial = template.render({'domain': domain}, None)

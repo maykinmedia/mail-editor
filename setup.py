@@ -7,21 +7,31 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='mail_editor',
-    version='0.1.6',
+    version='0.1.11',
     license='BSD',
 
     # packaging
     install_requires=[
         'Django>=1.8',
         'django-choices',
-        'django-ckeditor'
+        'django-ckeditor',
     ],
     include_package_data=True,
+    scripts=['bin/inject-inline-styles.js'],
     packages=find_packages(exclude=["tests"]),
 
     # tests
-    test_suite='runtests.runtests',
-    tests_require=['coverage'],
+    setup_requires=['pytest-runner'],
+    tests_require=[
+        'factory-boy',
+        'psycopg2',
+        'pytest',
+        'pytest-cov',
+        'pytest-django',
+        'pytest-pep8',
+        'pytest-pylint',
+        'pytest-pythonpath',
+    ],
 
     # metadata
     description='A Django package for email template editing',

@@ -30,14 +30,22 @@ class MailTemplateValidator(object):
             error_tpl = """
                 <p>{{ error }}</p>
 
-                {{ source|linenumbers|linebreaks }}
+                {% if source %}
+                    {{ source|linenumbers|linebreaks }}
+                {% endif %}
             """
-
-            source = exc.django_template_source[0].source
-            pz = exc.django_template_source[1]
-            highlighted_pz = ">>>>{0}<<<<".format(source[pz[0]:pz[1]])
-            source = '{0}{1}{2}'.format(source[:pz[0]], highlighted_pz, source[pz[1]:])
-            _error = _('TemplateSyntaxError: {0}').format(exc.args[0])
+            if hasattr(exc, 'django_template_source'):
+                source = exc.django_template_source[0].source
+                pz = exc.django_template_source[1]
+                highlighted_pz = ">>>>{0}<<<<".format(source[pz[0]:pz[1]])
+                source = '{0}{1}{2}'.format(source[:pz[0]], highlighted_pz, source[pz[1]:])
+                _error = _('TemplateSyntaxError: {0}').format(exc.args[0])
+            elif hasattr(exc, 'template_debug'):
+                _error = _('TemplateSyntaxError: {0}').format(exc.template_debug.get('message'))
+                source = '{}'.format(exc.template_debug.get('during'))
+            else:
+                _error = exc
+                source = None
             error = Template(error_tpl).render(Context({'error': _error, 'source': source}))
             raise ValidationError(error, code='syntax_error')
 
@@ -95,6 +103,20 @@ class Variable(object):
     present in the mail template, but this can be enforced.
     """
 
-    def __init__(self, name, required=True):
+    def __init__(self, name, description='', required=True):
         self.name = name
+        self.description = description
         self.required = required
+
+    def get_html_list_item(self):
+        variable_string = '<li>'
+        if self.required:
+            variable_string += '*'
+
+        variable_string += '<b>{}</b>'.format(self.name)
+
+        if self.description:
+            variable_string += ': <i>{}</i>'.format(self.description)
+
+        variable_string += '</li>'
+        return variable_string
