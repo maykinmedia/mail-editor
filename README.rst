@@ -3,11 +3,20 @@ MailEditor
 
 .. image:: https://travis-ci.org/maykinmedia/mail-editor.svg?branch=master
     :target: https://travis-ci.org/maykinmedia/mail-editor
+    :alt: Travis
 .. image:: https://codecov.io/gh/maykinmedia/mail-editor/branch/develop/graph/badge.svg
-  :target: https://codecov.io/gh/maykinmedia/mail-editor
+    :target: https://codecov.io/gh/maykinmedia/mail-editor
+    :alt: Coverage
 .. image:: https://lintly.com/gh/maykinmedia/mail-editor/badge.svg
     :target: https://lintly.com/gh/maykinmedia/mail-editor/
     :alt: Lintly
+.. image:: https://bettercodehub.com/edge/badge/maykinmedia/mail-editor?branch=master
+    :target: https://bettercodehub.com/results/maykinmedia/mail-editor
+    :alt: BCH compliance
+.. image:: https://codeclimate.com/github/codeclimate/codeclimate/badges/gpa.svg
+   :target: https://codeclimate.com/github/codeclimate/codeclimate
+   :alt: Code Climate
+
 
 Django e-mail templates!
 
