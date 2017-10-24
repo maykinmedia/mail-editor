@@ -30,3 +30,16 @@ TEMPLATES = [
         'OPTIONS': {},
     },
 ]
+
+MAIL_EDITOR_TEMPLATES = {
+    'template': {
+        'subject': [{
+            'name': 'foo',
+            'required': True,
+        }],
+        'body': [{
+            'name': 'bar',
+            'required': True,
+        }],
+    }
+}

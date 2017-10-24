@@ -53,6 +53,29 @@ This packages are needed to make the email complient for all the email clients.
     npm install --save inline-css
     npm install --save html-minifier
 
+
+Add *'mail_editor'* to the installed apps:
+
+.. code:: python
+
+    # settings.py
+
+    INSTALLED_APPS = [
+        ...
+        'mail_editor',
+        'ckeditor',
+        ...
+    ]
+
+Add the urls:
+
+.. code:: python
+
+    # urls.py
+
+    url(r'^mail-editor/', include('mail_editor.urls', namespace='mail_editor')),
+
+
 Using the template
 --------------------
 
