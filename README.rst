@@ -147,6 +147,14 @@ These settings are usefull to add:
         }
     }
 
+You can set template variables to all of the mail templates in the following fashion.
+
+.. code:: python
+
+MAIL_EDITOR_BASE_CONTEXT = {
+    'url': 'http://www.maykinmedia.nl',
+}
+
 
 Installation
 ------------
