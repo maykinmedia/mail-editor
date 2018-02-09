@@ -73,14 +73,18 @@ class MailTemplate(models.Model):
         validate_template(self)
 
     def render(self, context, subj_context=None):
+        base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
+
         if not subj_context:
             subj_context = context
 
         tpl_subject = Template(self.subject)
         tpl_body = Template(self.body)
 
-        ctx = Context(context)
-        subj_ctx = Context(subj_context)
+        ctx = Context(base_context)
+        ctx.update(context)
+        subj_ctx = Context(base_context)
+        subj_ctx.update(subj_context)
 
         partial_body = tpl_body.render(ctx)
         template = loader.get_template('mail/_base.html')
@@ -89,7 +93,10 @@ class MailTemplate(models.Model):
             domain = current_site.domain
         except Exception as e:
             domain = ''
-        body = template.render({'domain': domain, 'content': partial_body}, None)
+
+        body_context = Context(base_context)
+        body_context.update({'domain': domain, 'content': partial_body})
+        body = template.render(body_context, None)
 
         # TODO: I made the package.json stuff optional. Maybe it should be removed completely since it adds 3 settings,
         # seems for a limited use-case, and it uses subproces...
