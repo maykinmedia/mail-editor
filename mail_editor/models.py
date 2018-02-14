@@ -120,7 +120,8 @@ class MailTemplate(models.Model):
 
         return tpl_subject.render(subj_ctx), mark_safe(body)
 
-    def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None):
+    def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None,
+                   cc_addresses=None, bcc_addresses=None):
         """
         You can pass the context only. We will pass the context to the subject context when we don't
         have a subject context.
@@ -132,7 +133,9 @@ class MailTemplate(models.Model):
         subject, body = self.render(context, subj_context)
         text_body = txt or strip_tags(body)
 
-        email_message = EmailMultiAlternatives(subject=subject, body=text_body, from_email=django_settings.DEFAULT_FROM_EMAIL, to=to_addresses)
+        email_message = EmailMultiAlternatives(
+            subject=subject, body=text_body, from_email=django_settings.DEFAULT_FROM_EMAIL,
+            to=to_addresses, cc=cc_addresses, bcc=bcc_addresses)
         email_message.attach_alternative(body, 'text/html')
 
         if attachments:
