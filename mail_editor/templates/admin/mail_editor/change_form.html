@@ -6,7 +6,7 @@
 <script>
     $(document).ready(function() {
         $('#id_template_type').change(function(){
-            $.get('{% url "mail_editor:template_variables" %}', function(data, textStatus, jqXHR) {
+            $.get('{% url "mail_editor:template_variables" original.template_type %}', function(data, textStatus, jqXHR) {
                 $('.field-get_variable_help_text').innerHTML = data
             });
         });
