@@ -4,7 +4,7 @@ Defines helpers for validating e-mail templates
 from __future__ import absolute_import, unicode_literals
 
 from django.core.exceptions import ValidationError
-from django.template import Context, Template, TemplateSyntaxError  # TODO: should be able to specify engine
+from django.template import Template, TemplateSyntaxError  # TODO: should be able to specify engine
 from django.template.base import VariableNode
 from django.utils.translation import ugettext_lazy as _
 
@@ -46,7 +46,7 @@ class MailTemplateValidator(object):
             else:
                 _error = exc
                 source = None
-            error = Template(error_tpl).render(Context({'error': _error, 'source': source}))
+            error = Template(error_tpl).render({'error': _error, 'source': source})
             raise ValidationError(error, code='syntax_error')
 
     def check_variables(self, template, field):

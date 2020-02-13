@@ -1,5 +1,6 @@
 import logging
 import os
+import copy
 import subprocess
 from tempfile import NamedTemporaryFile
 
@@ -8,7 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models import Q
-from django.template import Context, Template, loader
+from django.template import Template, loader
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
@@ -28,10 +29,10 @@ class MailTemplateManager(models.Manager):
         """
         Returns the `MailTemplate` for the given type in the given language. If the language does not exist, it
         attempts to find and return the fallback (no language) instance.
-        
+
         :param template_type:
-        :param language: 
-        :return: 
+        :param language:
+        :return:
         """
         mail_template = self.filter(
             template_type=template_type
@@ -81,9 +82,9 @@ class MailTemplate(models.Model):
         tpl_subject = Template(self.subject)
         tpl_body = Template(self.body)
 
-        ctx = Context(base_context)
+        ctx = copy.deepcopy(base_context)
         ctx.update(context)
-        subj_ctx = Context(base_context)
+        subj_ctx = copy.deepcopy(base_context)
         subj_ctx.update(subj_context)
 
         partial_body = tpl_body.render(ctx)
@@ -94,7 +95,7 @@ class MailTemplate(models.Model):
         except Exception as e:
             domain = ''
 
-        body_context = Context(base_context)
+        body_context = copy.deepcopy(base_context)
         body_context.update({'domain': domain, 'content': partial_body})
         body = template.render(body_context, None)
 
