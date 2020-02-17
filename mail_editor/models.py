@@ -121,8 +121,8 @@ class MailTemplate(models.Model):
 
         return tpl_subject.render(subj_ctx), mark_safe(body)
 
-    def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None,
-                   cc_addresses=None, bcc_addresses=None):
+    def build_message(self, to_addresses, context, subj_context=None, txt=False, attachments=None,
+                      cc_addresses=None, bcc_addresses=None):
         """
         You can pass the context only. We will pass the context to the subject context when we don't
         have a subject context.
@@ -148,6 +148,20 @@ class MailTemplate(models.Model):
                 else:
                     email_message.attach(*attachment)
 
+        return email_message
+
+    def send_email(self, to_addresses, context, subj_context=None, txt=False, attachments=None,
+                   cc_addresses=None, bcc_addresses=None):
+        """
+        You can pass the context only. We will pass the context to the subject context when we don't
+        have a subject context.
+
+        @param attachments: List of tuples, where the tuple can be one of two forms:
+                            `(<absolute file path>, [mime type])` or
+                            `(<filename>, <content>, [mime type])`
+        """
+        email_message = self.build_message(to_addresses, context, subj_context=subj_context, txt=txt,
+                        attachments=attachments, cc_addresses=cc_addresses, bcc_addresses=bcc_addresses)
         return email_message.send()
 
     def get_variable_help_text(self):
