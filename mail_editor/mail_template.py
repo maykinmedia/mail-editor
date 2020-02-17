@@ -63,14 +63,14 @@ class MailTemplateValidator(object):
             message = _('These variables are required, but missing: {vars}').format(
                 vars=self._format_vars(missing_vars)
             )
-            raise ValidationError({field: message}, code=self.code)
+            raise ValidationError(params={field: message}, message=message, code=self.code)
 
         unexpected_vars = variables_seen - required_vars - optional_vars
         if unexpected_vars:
             message = _('These variables are present, but unexpected: {vars}').format(
                 vars=self._format_vars(unexpected_vars)
             )
-            raise ValidationError({field: message}, code=self.code)
+            raise ValidationError(params={field: message}, message=message, code=self.code)
 
     def _format_vars(self, variables):
         return ', '.join('{{{{ {} }}}}'.format(var) for var in variables)
@@ -90,8 +90,9 @@ def validate_template(mail_template):
 
     if errors:
         main_error = errors[0]
-        for error in errors[1:]:
-            error.update_error_dict(main_error.error_dict)
+        if len(errors) > 1:
+            for error in errors[1:]:
+                main_error.update_error_dict(error.error_dict)
         raise main_error
 
 
