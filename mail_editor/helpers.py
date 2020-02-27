@@ -17,7 +17,7 @@ def find_template(template_name):
 
 
 def get_subject(template_name):
-    config = settings.MAIL_EDITOR_CONF
+    config = settings.MAIL_EDITOR_TEMPLATES
 
     template_config = config.get(template_name)
     if template_config:
@@ -29,7 +29,7 @@ def get_subject(template_name):
 
 
 def get_body(template_name):
-    config = settings.MAIL_EDITOR_CONF
+    config = settings.MAIL_EDITOR_TEMPLATES
 
     template_config = config.get(template_name)
     default = _('Your content here...')

@@ -3,6 +3,7 @@
 
 {% block extrahead %}
 {{ block.super }}
+{% if original.template_type %}
 <script>
     django.jQuery(document).ready(function() {
         $('#id_template_type').change(function(){
@@ -12,4 +13,5 @@
         });
     });
 </script>
+{% endif %}
 {% endblock %}
