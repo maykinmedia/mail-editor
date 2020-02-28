@@ -7,8 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from .models import MailTemplate
 
 
-def find_template(template_name):
-    template, created = MailTemplate.objects.get_or_create(template_type=template_name, defaults={
+def find_template(template_name, language=None):
+    template, created = MailTemplate.objects.get_or_create(template_type=template_name, language=language, defaults={
         'subject': get_subject(template_name),
         'body': get_body(template_name)
     })
