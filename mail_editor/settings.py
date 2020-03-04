@@ -36,6 +36,10 @@ else:
     BIN_PATH = getattr(django_settings, 'MAIL_EDITOR_BIN_PATH', False)
 
 
+BASE_CONTEXT = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
+BASE_TEMPLATE_LOADER = getattr(django_settings, 'MAIL_EDITOR_BASE_TEMPLATE_LOADER', 'mail_editor.helpers.base_template_loader')
+
+
 def get_choices():
     choices = []
     for key, values in TEMPLATES.items():

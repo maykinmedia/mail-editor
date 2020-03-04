@@ -14,6 +14,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.utils.module_loading import import_string
 
 from . import settings
 from .mail_template import validate_template
@@ -52,6 +53,7 @@ class MailTemplate(models.Model):
     remarks = models.TextField(_('remarks'), blank=True, default='', help_text=_('Extra information about the template'))
     subject = models.CharField(_('subject'), max_length=255)
     body = models.TextField(_('body'), help_text=_('Add the body with {{variable}} placeholders'))
+    base_template_path = models.CharField(_("Base template path"), max_length=200, blank=True, default="", help_text="Leave empty for default template. Override to load a different template.")
 
     objects = MailTemplateManager()
 
@@ -88,7 +90,8 @@ class MailTemplate(models.Model):
         subj_ctx.update(subj_context)
 
         partial_body = tpl_body.render(ctx)
-        template = loader.get_template('mail/_base.html')
+        template_function = import_string(settings.BASE_TEMPLATE_LOADER)
+
         try:
             current_site = get_current_site(None)
             domain = current_site.domain
@@ -97,7 +100,7 @@ class MailTemplate(models.Model):
 
         body_context = copy.deepcopy(base_context)
         body_context.update({'domain': domain, 'content': partial_body})
-        body = template.render(body_context, None)
+        body = template_function(self.base_template_path, body_context)
 
         # TODO: I made the package.json stuff optional. Maybe it should be removed completely since it adds 3 settings,
         # seems for a limited use-case, and it uses subproces...

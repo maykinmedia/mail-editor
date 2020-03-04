@@ -8,10 +8,21 @@ from .models import MailTemplate
 
 
 def find_template(template_name, language=None):
-    template, created = MailTemplate.objects.get_or_create(template_type=template_name, language=language, defaults={
-        'subject': get_subject(template_name),
-        'body': get_body(template_name)
-    })
+    if language:
+        template, _created = MailTemplate.objects.get_or_create(template_type=template_name, language=language, defaults={
+            'subject': get_subject(template_name),
+            'body': get_body(template_name)
+        })
+    else:
+        base_qs = MailTemplate.objects.filter(template_type=template_name, language__isnull=True)
+        if base_qs.exists():
+            template = base_qs.first()
+        else:
+            template = MailTemplate.objects.create(
+                template_type=template_name,
+                subject=get_subject(template_name),
+                body=get_body(template_name)
+            )
 
     return template
 
@@ -41,3 +52,10 @@ def get_body(template_name):
     template = loader.get_template('mail/_outer_table.html')
     current_site = get_current_site(None)
     return template.render({'domain': current_site.domain, 'default': mark_safe(default)}, None)
+
+
+def base_template_loader(template_path, context):
+    if not template_path:
+        template_path = 'mail/_base.html'
+    print(template_path)
+    return loader.render_to_string(template_path, context)
