@@ -84,22 +84,23 @@ class MailTemplate(models.Model):
         tpl_subject = Template(self.subject)
         tpl_body = Template(self.body)
 
-        ctx = Context(base_context)
-        ctx.update(context)
-        subj_ctx = Context(base_context)
-        subj_ctx.update(subj_context)
-
-        partial_body = tpl_body.render(ctx)
-        template_function = import_string(settings.BASE_TEMPLATE_LOADER)
-
         try:
             current_site = get_current_site(None)
             domain = current_site.domain
         except Exception as e:
             domain = ''
 
+        ctx = Context(base_context)
+        ctx.update(context)
+        ctx.update(domain=domain)
+        subj_ctx = Context(base_context)
+        subj_ctx.update(subj_context)
+
+        partial_body = tpl_body.render(ctx)
+        template_function = import_string(settings.BASE_TEMPLATE_LOADER)
+
         body_context = copy.deepcopy(base_context)
-        body_context.update({'domain': domain, 'content': partial_body})
+        body_context.update({'content': partial_body})
         body = template_function(self.base_template_path, body_context)
 
         # TODO: I made the package.json stuff optional. Maybe it should be removed completely since it adds 3 settings,
