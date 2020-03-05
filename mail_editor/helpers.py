@@ -11,7 +11,8 @@ def find_template(template_name, language=None):
     if language:
         template, _created = MailTemplate.objects.get_or_create(template_type=template_name, language=language, defaults={
             'subject': get_subject(template_name),
-            'body': get_body(template_name)
+            'body': get_body(template_name),
+            'base_template_path': get_base_template_path(template_name),
         })
     else:
         base_qs = MailTemplate.objects.filter(template_type=template_name, language__isnull=True)
@@ -21,7 +22,8 @@ def find_template(template_name, language=None):
             template = MailTemplate.objects.create(
                 template_type=template_name,
                 subject=get_subject(template_name),
-                body=get_body(template_name)
+                body=get_body(template_name),
+                base_template_path=get_base_template_path(template_name),
             )
 
     return template
@@ -52,6 +54,15 @@ def get_body(template_name):
     template = loader.get_template('mail/_outer_table.html')
     current_site = get_current_site(None)
     return template.render({'domain': current_site.domain, 'default': mark_safe(default)}, None)
+
+
+def get_base_template_path(template_name):
+    config = settings.MAIL_EDITOR_TEMPLATES
+
+    template_config = config.get(template_name)
+    if template_config:
+        return template_config.get('base_template', '')
+    return ''
 
 
 def base_template_loader(template_path, context):
