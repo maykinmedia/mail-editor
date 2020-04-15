@@ -68,5 +68,4 @@ def get_base_template_path(template_name):
 def base_template_loader(template_path, context):
     if not template_path:
         template_path = 'mail/_base.html'
-    print(template_path)
     return loader.render_to_string(template_path, context)
