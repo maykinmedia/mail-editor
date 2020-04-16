@@ -53,7 +53,7 @@ class MailTemplate(models.Model):
     remarks = models.TextField(_('remarks'), blank=True, default='', help_text=_('Extra information about the template'))
     subject = models.CharField(_('subject'), max_length=255)
     body = models.TextField(_('body'), help_text=_('Add the body with {{variable}} placeholders'))
-    base_template_path = models.CharField(_("Base template path"), max_length=200, null=True, blank=True, default="", help_text="Leave empty for default template. Override to load a different template.")
+    base_template_path = models.CharField(_("Base template path"), max_length=200, null=True, blank=True, help_text="Leave empty for default template. Override to load a different template.")
 
     objects = MailTemplateManager()
 
