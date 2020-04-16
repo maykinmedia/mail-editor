@@ -1,10 +1,16 @@
+import logging
+
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.template import loader
+from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from .models import MailTemplate
+
+
+logger = logging.getLogger(__name__)
 
 
 def find_template(template_name, language=None):
@@ -66,6 +72,13 @@ def get_base_template_path(template_name):
 
 
 def base_template_loader(template_path, context):
+    default_path = 'mail/_base.html'
+
     if not template_path:
-        template_path = 'mail/_base.html'
-    return loader.render_to_string(template_path, context)
+        template_path = default_path
+
+    try:
+        return loader.render_to_string(template_path, context)
+    except (TemplateDoesNotExist, TemplateSyntaxError) as e:
+        logging.exception("Base template could not be rendered")
+        return loader.render_to_string(default_path, context)
