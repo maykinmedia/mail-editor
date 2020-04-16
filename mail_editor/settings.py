@@ -4,7 +4,6 @@ from django.conf import settings as django_settings
 
 from .mail_template import Variable
 
-
 # Available templates and variables for the mail editor.
 TEMPLATES = getattr(django_settings, 'MAIL_EDITOR_CONF', {})
 if TEMPLATES:

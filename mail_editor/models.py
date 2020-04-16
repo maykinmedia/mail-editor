@@ -1,6 +1,6 @@
+import copy
 import logging
 import os
-import copy
 import subprocess
 from tempfile import NamedTemporaryFile
 
@@ -12,15 +12,14 @@ from django.db.models import Q
 from django.template import Context, Template, loader
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
+from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.utils.module_loading import import_string
 
 from . import settings
 from .mail_template import validate_template
 from .node import locate_package_json
 from .utils import variable_help_text
-
 
 logger = logging.getLogger(__name__)
 
@@ -90,9 +89,10 @@ class MailTemplate(models.Model):
         except Exception as e:
             domain = ''
 
-        ctx = Context(base_context)
-        ctx.update({**context, "domain": domain})
+        base_context.update(context)
+        base_context.update(domain=domain)
 
+        ctx = Context(base_context)
         subj_ctx = Context(base_context)
         subj_ctx.update(subj_context)
 
