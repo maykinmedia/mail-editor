@@ -7,7 +7,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='mail_editor',
-    version='0.3.3',
+    version='0.3.4',
     license='BSD',
 
     # packaging

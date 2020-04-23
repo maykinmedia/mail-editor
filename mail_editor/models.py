@@ -90,7 +90,7 @@ class MailTemplate(models.Model):
             domain = ''
 
         base_context.update(context)
-        base_context.update(domain=domain)
+        base_context.update({"domain": domain})
 
         ctx = Context(base_context)
         ctx.update(context)
