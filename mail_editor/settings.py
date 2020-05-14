@@ -4,7 +4,6 @@ from django.conf import settings as django_settings
 
 from .mail_template import Variable
 
-
 # Available templates and variables for the mail editor.
 TEMPLATES = getattr(django_settings, 'MAIL_EDITOR_CONF', {})
 if TEMPLATES:
@@ -34,6 +33,10 @@ if BIN_PATH:
     warnings.warn('Setting BIN_PATH is deprecated, please use MAIL_EDITOR_BIN_PATH.', DeprecationWarning)
 else:
     BIN_PATH = getattr(django_settings, 'MAIL_EDITOR_BIN_PATH', False)
+
+
+BASE_CONTEXT = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
+BASE_TEMPLATE_LOADER = getattr(django_settings, 'MAIL_EDITOR_BASE_TEMPLATE_LOADER', 'mail_editor.helpers.base_template_loader')
 
 
 def get_choices():

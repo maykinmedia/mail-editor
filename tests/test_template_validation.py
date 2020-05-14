@@ -24,7 +24,7 @@ CONFIG = {
 
 class TemplateValidationTests(TestCase):
     def test_valid_template(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+        settings.MAIL_EDITOR_TEMPLATES = CONFIG.copy()
         template = MailTemplate(
             template_type='template',
             subject='{{ foo }}',
@@ -36,7 +36,7 @@ class TemplateValidationTests(TestCase):
             pytest.fail("Unexpected validationError")
 
     def test_template_syntax_error(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+        settings.MAIL_EDITOR_TEMPLATES = CONFIG.copy()
         template = MailTemplate(
             template_type='template',
             subject='{{ foo bar }}',
@@ -48,7 +48,7 @@ class TemplateValidationTests(TestCase):
         self.assertEqual(excinfo.value.code, 'syntax_error')
 
     def test_template_invalid_error(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+        settings.MAIL_EDITOR_TEMPLATES = CONFIG.copy()
         template = MailTemplate(
             template_type='template',
             subject='{{ bar }}',
