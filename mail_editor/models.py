@@ -1,6 +1,6 @@
+import copy
 import logging
 import os
-import copy
 import subprocess
 from tempfile import NamedTemporaryFile
 
@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.template import Context, Template, loader
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
+from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -19,7 +20,6 @@ from . import settings
 from .mail_template import validate_template
 from .node import locate_package_json
 from .utils import variable_help_text
-
 
 logger = logging.getLogger(__name__)
 
@@ -47,11 +47,12 @@ class MailTemplateManager(models.Manager):
 @python_2_unicode_compatible
 class MailTemplate(models.Model):
     template_type = models.CharField(_('type'), max_length=50)
-    language = models.CharField(max_length=10, choices=django_settings.LANGUAGES, blank=True)
+    language = models.CharField(max_length=10, choices=django_settings.LANGUAGES, blank=True, null=True)
 
     remarks = models.TextField(_('remarks'), blank=True, default='', help_text=_('Extra information about the template'))
     subject = models.CharField(_('subject'), max_length=255)
     body = models.TextField(_('body'), help_text=_('Add the body with {{variable}} placeholders'))
+    base_template_path = models.CharField(_("Base template path"), max_length=200, null=True, blank=True, help_text="Leave empty for default template. Override to load a different template.")
 
     objects = MailTemplateManager()
 
@@ -82,22 +83,27 @@ class MailTemplate(models.Model):
         tpl_subject = Template(self.subject)
         tpl_body = Template(self.body)
 
-        ctx = Context(base_context)
-        ctx.update(context)
-        subj_ctx = Context(base_context)
-        subj_ctx.update(subj_context)
-
-        partial_body = tpl_body.render(ctx)
-        template = loader.get_template('mail/_base.html')
         try:
             current_site = get_current_site(None)
             domain = current_site.domain
         except Exception as e:
             domain = ''
 
+        base_context.update(context)
+        base_context.update({"domain": domain})
+
+        ctx = Context(base_context)
+        ctx.update(context)
+        ctx.update({"domain": domain})
+        subj_ctx = Context(base_context)
+        subj_ctx.update(subj_context)
+
+        partial_body = tpl_body.render(ctx)
+        template_function = import_string(settings.BASE_TEMPLATE_LOADER)
+
         body_context = copy.deepcopy(base_context)
-        body_context.update({'domain': domain, 'content': partial_body})
-        body = template.render(body_context, None)
+        body_context.update({'content': partial_body})
+        body = template_function(self.base_template_path, body_context)
 
         # TODO: I made the package.json stuff optional. Maybe it should be removed completely since it adds 3 settings,
         # seems for a limited use-case, and it uses subproces...
