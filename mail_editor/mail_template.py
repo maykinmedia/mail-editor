@@ -104,7 +104,7 @@ class Variable(object):
     present in the mail template, but this can be enforced.
     """
 
-    def __init__(self, name, description='', required=True):
+    def __init__(self, name, description='', required=False):
         self.name = name
         self.description = description
         self.required = required
