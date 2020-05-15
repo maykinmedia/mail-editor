@@ -40,7 +40,7 @@ def find_template(template_name, language=None):
 
 
 def get_subject(template_name):
-    config = settings.MAIL_EDITOR_TEMPLATES
+    config = settings.MAIL_EDITOR_CONF
 
     template_config = config.get(template_name)
     if template_config:
@@ -52,7 +52,7 @@ def get_subject(template_name):
 
 
 def get_body(template_name):
-    config = settings.MAIL_EDITOR_TEMPLATES
+    config = settings.MAIL_EDITOR_CONF
 
     template_config = config.get(template_name)
     default = _('Your content here...')
@@ -67,7 +67,7 @@ def get_body(template_name):
 
 
 def get_base_template_path(template_name):
-    config = settings.MAIL_EDITOR_TEMPLATES
+    config = settings.MAIL_EDITOR_CONF
 
     template_config = config.get(template_name)
     if template_config:

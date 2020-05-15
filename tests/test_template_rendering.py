@@ -37,7 +37,7 @@ class TemplateRenderTestCase(TestCase):
         patch.stopall()
 
     def test_simple(self):
-        settings.MAIL_EDITOR_TEMPLATES = CONFIG.copy()
+        settings.MAIL_EDITOR_CONF = CONFIG.copy()
 
         subject_context = {"id": "111"}
         body_context = {"id": "111"}
@@ -52,7 +52,7 @@ class TemplateRenderTestCase(TestCase):
         self.assertIn("Test mail sent from testcase with 111", body)
 
     def test_incorrect_base_path(self):
-        settings.MAIL_EDITOR_TEMPLATES = CONFIG.copy()
+        settings.MAIL_EDITOR_CONF = CONFIG.copy()
 
         subject_context = {"id": "222"}
         body_context = {"id": "222"}
@@ -68,7 +68,7 @@ class TemplateRenderTestCase(TestCase):
         self.assertIn("Test mail sent from testcase with 222", body)
 
     def test_base_template_errors(self):
-        settings.MAIL_EDITOR_TEMPLATES = CONFIG.copy()
+        settings.MAIL_EDITOR_CONF = CONFIG.copy()
 
         subject_context = {"id": "333"}
         body_context = {"id": "333"}
