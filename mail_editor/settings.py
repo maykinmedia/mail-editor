@@ -6,10 +6,9 @@ from .mail_template import Variable
 
 # Available templates and variables for the mail editor.
 TEMPLATES = getattr(django_settings, 'MAIL_EDITOR_CONF', {})
-if TEMPLATES:
-    warnings.warn('Setting MAIL_EDITOR_CONF is deprecated, please use MAIL_EDITOR_TEMPLATES.', DeprecationWarning)
-else:
+if not TEMPLATES:
     TEMPLATES = getattr(django_settings, 'MAIL_EDITOR_TEMPLATES', {})
+    warnings.warn('Setting MAIL_EDITOR_TEMPLATES is deprecated, please use MAIL_EDITOR_CONF.', DeprecationWarning)
 
 
 # Location of folder holding "package.json".
