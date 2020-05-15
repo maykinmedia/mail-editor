@@ -31,7 +31,7 @@ TEMPLATES = [
     },
 ]
 
-MAIL_EDITOR_TEMPLATES = {
+MAIL_EDITOR_CONF = {
     'template': {
         'subject': [{
             'name': 'foo',
