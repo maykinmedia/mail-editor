@@ -55,6 +55,7 @@ class MailTemplateValidator(object):
         variables_seen = set()
         required_vars = {var.name for var in self.config[field] if var.required}
         optional_vars = {var.name for var in self.config[field] if not var.required}
+        known_vars = required_vars.union(optional_vars)
         for node in template.nodelist.get_nodes_by_type(VariableNode):
             var_name = node.filter_expression.var.var
             if var_name not in variables_seen:
@@ -69,10 +70,20 @@ class MailTemplateValidator(object):
 
         unexpected_vars = variables_seen - required_vars - optional_vars
         if unexpected_vars:
-            message = _('These variables are present, but unexpected: {vars}').format(
-                vars=self._format_vars(unexpected_vars)
-            )
-            raise ValidationError(params={field: message}, message=message, code=self.code)
+            attribute = False
+
+            for var in unexpected_vars:
+                if any(
+                    var.startswith("{}.".format(known_var)) for known_var in known_vars
+                ):
+                    attribute = True
+                    break
+
+            if not attribute:
+                message = _('These variables are present, but unexpected: {vars}').format(
+                    vars=self._format_vars(unexpected_vars)
+                )
+                raise ValidationError(params={field: message}, message=message, code=self.code)
 
     def _format_vars(self, variables):
         return ', '.join('{{{{ {} }}}}'.format(var) for var in variables)
