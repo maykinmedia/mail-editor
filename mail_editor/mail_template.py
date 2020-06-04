@@ -58,8 +58,7 @@ class MailTemplateValidator(object):
         known_vars = required_vars.union(optional_vars)
         for node in template.nodelist.get_nodes_by_type(VariableNode):
             var_name = node.filter_expression.var.var
-            if var_name not in variables_seen:
-                variables_seen.add(var_name)
+            variables_seen.add(var_name)
 
         missing_vars = required_vars - variables_seen
         if missing_vars:
