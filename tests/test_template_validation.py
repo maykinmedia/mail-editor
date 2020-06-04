@@ -1,4 +1,3 @@
-from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -6,7 +5,6 @@ import pytest
 
 from mail_editor.models import MailTemplate
 from mail_editor.mail_template import validate_template
-from . import settings
 
 
 class TemplateValidationTests(TestCase):
