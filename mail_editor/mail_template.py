@@ -69,17 +69,6 @@ class MailTemplateValidator(object):
                 )
                 raise ValidationError(params={field: message}, message=message, code=self.code)
 
-        unexpected_vars = variables_seen - required_vars - optional_vars
-        if unexpected_vars:
-            known_vars = required_vars.union(optional_vars)
-            attribute = self._is_attribute(unexpected_vars, known_vars)
-
-            if not attribute:
-                message = _('These variables are present, but unexpected: {vars}').format(
-                    vars=self._format_vars(unexpected_vars)
-                )
-                raise ValidationError(params={field: message}, message=message, code=self.code)
-
     def _is_attribute(self, vars, known_vars):
         for var in vars:
             if any(

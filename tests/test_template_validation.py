@@ -67,3 +67,15 @@ class TemplateValidationTests(TestCase):
             validate_template(template)
         except ValidationError:
             pytest.fail("Unexpected validationError")
+
+    def test_valid_template_with_unknown_variable(self):
+        template = MailTemplate(
+            template_type='template',
+            subject='{{ foobar }}',
+            body='{{ bar }}'
+        )
+
+        try:
+            validate_template(template)
+        except ValidationError:
+            pytest.fail("Unexpected validationError")
