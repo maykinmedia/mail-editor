@@ -55,34 +55,39 @@ class MailTemplateValidator(object):
         variables_seen = set()
         required_vars = {var.name for var in self.config[field] if var.required}
         optional_vars = {var.name for var in self.config[field] if not var.required}
-        known_vars = required_vars.union(optional_vars)
         for node in template.nodelist.get_nodes_by_type(VariableNode):
             var_name = node.filter_expression.var.var
             variables_seen.add(var_name)
 
         missing_vars = required_vars - variables_seen
         if missing_vars:
-            message = _('These variables are required, but missing: {vars}').format(
-                vars=self._format_vars(missing_vars)
-            )
-            raise ValidationError(params={field: message}, message=message, code=self.code)
+            attribute = self._is_attribute(variables_seen, required_vars)
+
+            if not attribute:
+                message = _('These variables are required, but missing: {vars}').format(
+                    vars=self._format_vars(missing_vars)
+                )
+                raise ValidationError(params={field: message}, message=message, code=self.code)
 
         unexpected_vars = variables_seen - required_vars - optional_vars
         if unexpected_vars:
-            attribute = False
-
-            for var in unexpected_vars:
-                if any(
-                    var.startswith("{}.".format(known_var)) for known_var in known_vars
-                ):
-                    attribute = True
-                    break
+            known_vars = required_vars.union(optional_vars)
+            attribute = self._is_attribute(unexpected_vars, known_vars)
 
             if not attribute:
                 message = _('These variables are present, but unexpected: {vars}').format(
                     vars=self._format_vars(unexpected_vars)
                 )
                 raise ValidationError(params={field: message}, message=message, code=self.code)
+
+    def _is_attribute(self, vars, known_vars):
+        for var in vars:
+            if any(
+                var.startswith("{}.".format(known_var)) for known_var in known_vars
+            ):
+                return True
+
+        return False
 
     def _format_vars(self, variables):
         return ', '.join('{{{{ {} }}}}'.format(var) for var in variables)
