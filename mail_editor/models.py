@@ -74,6 +74,12 @@ class MailTemplate(models.Model):
     def clean(self):
         validate_template(self)
 
+    def validate_unique(self, **kwargs):
+        if not self.CONFIG["MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES"]:
+            super().validate_unique(**kwargs, exclude=['template_type', 'language'])
+        else:
+            super().validate_unique(**kwargs)
+
     def render(self, context, subj_context=None):
         base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
 
