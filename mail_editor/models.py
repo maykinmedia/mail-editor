@@ -10,7 +10,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models import Q
 from django.template import Context, Template, loader
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
@@ -44,8 +43,8 @@ class MailTemplateManager(models.Manager):
         return mail_template
 
 
-@python_2_unicode_compatible
 class MailTemplate(models.Model):
+    internal_name = models.CharField(max_length=255, default="", blank=True)
     template_type = models.CharField(_('type'), max_length=50)
     language = models.CharField(max_length=10, choices=django_settings.LANGUAGES, blank=True, null=True)
 
@@ -70,6 +69,9 @@ class MailTemplate(models.Model):
 
     def __str__(self):
         return self.template_type
+
+    def get_internal_name_display(self):
+        return self.internal_name if self.internal_name else self.template_type
 
     def clean(self):
         validate_template(self)
