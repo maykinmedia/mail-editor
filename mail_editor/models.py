@@ -70,14 +70,11 @@ class MailTemplate(models.Model):
     def __str__(self):
         return self.template_type
 
-    def get_internal_name_display(self):
-        return self.internal_name if self.internal_name else self.template_type
-
     def clean(self):
         validate_template(self)
 
     def validate_unique(self, **kwargs):
-        if not self.CONFIG["MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES"]:
+        if not getattr(django_settings, 'UNIQUE_LANGUAGE_TEMPLATES', True):
             super().validate_unique(**kwargs, exclude=['template_type', 'language'])
         else:
             super().validate_unique(**kwargs)
