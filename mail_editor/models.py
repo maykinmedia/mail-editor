@@ -68,6 +68,11 @@ class MailTemplate(models.Model):
         self.CONFIG = settings.get_config()
 
     def __str__(self):
+        if self.internal_name:
+            return self.internal_name
+        elif self.language:
+            return f"{self.template_type} - {self.language}"
+
         return self.template_type
 
     def clean(self):
