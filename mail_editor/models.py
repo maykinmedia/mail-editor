@@ -79,11 +79,14 @@ class MailTemplate(models.Model):
         validate_template(self)
 
         if getattr(django_settings, 'MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES', True):
-            queryset = self.__class__.objects.filter(
-                language=self.language, template_type=self.template_type
+            queryset = (
+                self.__class__.objects.filter(
+                    language=self.language, template_type=self.template_type
+                )
+                .values_list('pk', flat=True)
             )
 
-            if queryset.exists():
+            if queryset.exists() and not (self.pk and self.pk in queryset):
                 raise ValidationError(
                     _('Mail template with this type and language already exists')
                 )
