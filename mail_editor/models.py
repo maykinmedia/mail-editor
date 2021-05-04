@@ -5,6 +5,7 @@ import subprocess
 from tempfile import NamedTemporaryFile
 
 from django.conf import settings as django_settings
+from django.core.exceptions import ValidationError
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
@@ -61,7 +62,6 @@ class MailTemplate(models.Model):
     class Meta:
         verbose_name = _('mail template')
         verbose_name_plural = _('mail templates')
-        unique_together = (('template_type', 'language'), )
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
@@ -78,11 +78,18 @@ class MailTemplate(models.Model):
     def clean(self):
         validate_template(self)
 
-    def validate_unique(self, **kwargs):
-        if not getattr(django_settings, 'UNIQUE_LANGUAGE_TEMPLATES', True):
-            super().validate_unique(**kwargs, exclude=['template_type', 'language'])
-        else:
-            super().validate_unique(**kwargs)
+        if getattr(django_settings, 'MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES', True):
+            queryset = (
+                self.__class__.objects.filter(
+                    language=self.language, template_type=self.template_type
+                )
+                .values_list('pk', flat=True)
+            )
+
+            if queryset.exists() and not (self.pk and self.pk in queryset):
+                raise ValidationError(
+                    _('Mail template with this type and language already exists')
+                )
 
     def render(self, context, subj_context=None):
         base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
