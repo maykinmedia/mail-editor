@@ -47,12 +47,35 @@ class MailTemplateManager(models.Manager):
 @python_2_unicode_compatible
 class MailTemplate(models.Model):
     template_type = models.CharField(_('type'), max_length=50)
-    language = models.CharField(max_length=10, choices=django_settings.LANGUAGES, blank=True, null=True)
+    domain = models.ForeignKey(
+        "domains.Domain",
+        on_delete=models.PROTECT,
+        related_name="mail_templates",
+        verbose_name=_('Domein')
+    )
 
-    remarks = models.TextField(_('remarks'), blank=True, default='', help_text=_('Extra information about the template'))
+    language = models.CharField(
+        max_length=10, choices=django_settings.LANGUAGES, blank=True, null=True
+    )
+
+    remarks = models.TextField(
+        _('remarks'),
+        help_text=_('Extra information about the template'),
+        blank=True,
+        default='',
+    )
     subject = models.CharField(_('subject'), max_length=255)
-    body = models.TextField(_('body'), help_text=_('Add the body with {{variable}} placeholders'))
-    base_template_path = models.CharField(_("Base template path"), max_length=200, null=True, blank=True, help_text="Leave empty for default template. Override to load a different template.")
+    body = models.TextField(
+        _('body'),
+        help_text=_('Add the body with {{variable}} placeholders')
+    )
+    base_template_path = models.CharField(
+        _("Base template path"),
+        help_text="Leave empty for default template. Override to load a different template.",
+        max_length=200,
+        null=True,
+        blank=True,
+    )
 
     objects = MailTemplateManager()
 
@@ -62,14 +85,14 @@ class MailTemplate(models.Model):
     class Meta:
         verbose_name = _('mail template')
         verbose_name_plural = _('mail templates')
-        unique_together = (('template_type', 'language'), )
+        unique_together = (('template_type', 'language', 'domain',), )
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
         self.CONFIG = settings.get_config()
 
     def __str__(self):
-        return self.template_type
+        return f'{self.domain}: {self.template_type}'
 
     def clean(self):
         validate_template(self)

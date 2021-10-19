@@ -8,8 +8,15 @@ from .models import MailTemplate
 
 @admin.register(MailTemplate)
 class MailTemplateAdmin(admin.ModelAdmin):
-    list_display = ['get_type_display', 'language', 'get_description', 'subject', 'base_template_path']
-    list_filter = ['template_type', 'language']
+    list_display = (
+        'get_type_display',
+        'language',
+        'domain',
+        'get_description',
+        'subject',
+        'base_template_path',
+    )
+    list_filter = ('template_type', 'language', 'domain',)
     readonly_fields = ('get_variable_help_text', )
     form = MailTemplateForm
 
@@ -17,13 +24,16 @@ class MailTemplateAdmin(admin.ModelAdmin):
         fieldset = [
             (None, {
                 'fields': [
-                    'template_type', 'language', 'subject', 'body', 'base_template_path'
+                    'template_type',
+                    'language',
+                    'domain',
+                    'subject',
+                    'body',
+                    'base_template_path',
                 ],
             }),
             (_('Help'), {
-                'fields': [
-                    'get_variable_help_text', 'remarks',
-                ],
+                'fields': ['get_variable_help_text', 'remarks',],
             }),
         ]
         return fieldset
