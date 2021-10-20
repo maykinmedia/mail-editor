@@ -17,20 +17,28 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-def find_template(template_name, language=None):
+def find_template(template_name, domain, language=None):
     if language:
-        template, _created = MailTemplate.objects.get_or_create(template_type=template_name, language=language, defaults={
-            'subject': get_subject(template_name),
-            'body': get_body(template_name),
-            'base_template_path': get_base_template_path(template_name),
-        })
+        template, _created = MailTemplate.objects.get_or_create(
+            template_type=template_name, domain=domain, language=language,
+            defaults={
+                'subject': get_subject(template_name),
+                'body': get_body(template_name),
+                'base_template_path': get_base_template_path(template_name),
+            }
+        )
     else:
-        base_qs = MailTemplate.objects.filter(template_type=template_name, language__isnull=True)
-        if base_qs.exists():
-            template = base_qs.first()
+        queryset = MailTemplate.objects.filter(
+            template_type=template_name, domain=domain, language__isnull=True
+        )
+
+        if queryset.exists():
+            template = queryset.first()
         else:
             template = MailTemplate.objects.create(
                 template_type=template_name,
+                language=language,
+                domain=domain,
                 subject=get_subject(template_name),
                 body=get_body(template_name),
                 base_template_path=get_base_template_path(template_name),
