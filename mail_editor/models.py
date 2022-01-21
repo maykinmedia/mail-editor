@@ -5,12 +5,12 @@ import subprocess
 from tempfile import NamedTemporaryFile
 
 from django.conf import settings as django_settings
+from django.core.exceptions import ValidationError
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models import Q
 from django.template import Context, Template, loader
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
@@ -44,8 +44,8 @@ class MailTemplateManager(models.Manager):
         return mail_template
 
 
-@python_2_unicode_compatible
 class MailTemplate(models.Model):
+    internal_name = models.CharField(max_length=255, default="", blank=True)
     template_type = models.CharField(_('type'), max_length=50)
     language = models.CharField(max_length=10, choices=django_settings.LANGUAGES, blank=True, null=True)
 
@@ -62,17 +62,34 @@ class MailTemplate(models.Model):
     class Meta:
         verbose_name = _('mail template')
         verbose_name_plural = _('mail templates')
-        unique_together = (('template_type', 'language'), )
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
         self.CONFIG = settings.get_config()
 
     def __str__(self):
+        if self.internal_name:
+            return self.internal_name
+        elif self.language:
+            return f"{self.template_type} - {self.language}"
+
         return self.template_type
 
     def clean(self):
         validate_template(self)
+
+        if getattr(django_settings, 'MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES', True):
+            queryset = (
+                self.__class__.objects.filter(
+                    language=self.language, template_type=self.template_type
+                )
+                .values_list('pk', flat=True)
+            )
+
+            if queryset.exists() and not (self.pk and self.pk in queryset):
+                raise ValidationError(
+                    _('Mail template with this type and language already exists')
+                )
 
     def render(self, context, subj_context=None):
         base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})

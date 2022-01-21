@@ -8,16 +8,20 @@ from .models import MailTemplate
 
 @admin.register(MailTemplate)
 class MailTemplateAdmin(admin.ModelAdmin):
-    list_display = ['get_type_display', 'language', 'get_description', 'subject', 'base_template_path']
-    list_filter = ['template_type', 'language']
+    list_display = ('template_type', 'internal_name', 'language', 'get_description', 'subject', 'base_template_path',)
+    list_filter = ('template_type', 'language', 'internal_name',)
+
     readonly_fields = ('get_variable_help_text', )
+
+    search_fields = ("internal_name", "template_type", "subject",)
+
     form = MailTemplateForm
 
     def get_fieldsets(self, request, obj=None):
         fieldset = [
             (None, {
                 'fields': [
-                    'template_type', 'language', 'subject', 'body', 'base_template_path'
+                    'internal_name', 'template_type', 'language', 'subject', 'body', 'base_template_path'
                 ],
             }),
             (_('Help'), {

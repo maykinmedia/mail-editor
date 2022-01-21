@@ -35,11 +35,9 @@ MAIL_EDITOR_CONF = {
     'template': {
         'subject': [{
             'name': 'foo',
-            'required': True,
         }],
         'body': [{
             'name': 'bar',
-            'required': True,
         }],
     }
 }
