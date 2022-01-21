@@ -10,7 +10,10 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models import Q
 from django.template import Context, Template, loader
-from django.utils.encoding import python_2_unicode_compatible
+try:
+    from django.utils.encoding import python_2_unicode_compatible
+except ImportError:
+    from six import python_2_unicode_compatible
 from django.utils.html import strip_tags
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
