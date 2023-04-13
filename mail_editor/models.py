@@ -47,7 +47,7 @@ class MailTemplateManager(models.Manager):
 class MailTemplate(models.Model):
     internal_name = models.CharField(max_length=255, default="", blank=True)
     template_type = models.CharField(_('type'), max_length=50)
-    language = models.CharField(max_length=10, choices=django_settings.LANGUAGES, blank=True, null=True)
+    language = models.CharField(max_length=10, blank=True, null=True)
 
     remarks = models.TextField(_('remarks'), blank=True, default='', help_text=_('Extra information about the template'))
     subject = models.CharField(_('subject'), max_length=255)
