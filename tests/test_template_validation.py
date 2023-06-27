@@ -3,8 +3,8 @@ from django.test import TestCase
 
 import pytest
 
-from mail_editor.models import MailTemplate
 from mail_editor.mail_template import validate_template
+from mail_editor.models import MailTemplate
 
 
 class TemplateValidationTests(TestCase):
