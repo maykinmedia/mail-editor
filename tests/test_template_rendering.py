@@ -2,7 +2,7 @@ from tempfile import TemporaryFile
 
 from django.conf import settings
 from django.test import TestCase
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from mail_editor.models import MailTemplate
 from mail_editor.helpers import find_template
@@ -48,7 +48,7 @@ class TemplateRenderTestCase(TestCase):
             body_context, subj_context=subject_context
         )
 
-        self.assertEquals(subject, "Important message for 111")
+        self.assertEqual(subject, "Important message for 111")
         self.assertIn("Test mail sent from testcase with 111", body)
 
     def test_incorrect_base_path(self):
@@ -64,7 +64,7 @@ class TemplateRenderTestCase(TestCase):
             body_context, subj_context=subject_context
         )
 
-        self.assertEquals(subject, "Important message for 222")
+        self.assertEqual(subject, "Important message for 222")
         self.assertIn("Test mail sent from testcase with 222", body)
 
     def test_base_template_errors(self):
