@@ -1,12 +1,10 @@
-from tempfile import TemporaryFile
+from tempfile import NamedTemporaryFile
 
 from django.conf import settings
 from django.test import TestCase
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-from mail_editor.models import MailTemplate
 from mail_editor.helpers import find_template
-
 
 try:
     from unittest.mock import patch
@@ -48,7 +46,7 @@ class TemplateRenderTestCase(TestCase):
             body_context, subj_context=subject_context
         )
 
-        self.assertEquals(subject, "Important message for 111")
+        self.assertEqual(subject, "Important message for 111")
         self.assertIn("Test mail sent from testcase with 111", body)
 
     def test_incorrect_base_path(self):
@@ -73,7 +71,7 @@ class TemplateRenderTestCase(TestCase):
         subject_context = {"id": "333"}
         body_context = {"id": "333"}
 
-        with TemporaryFile("w") as file:
+        with NamedTemporaryFile("w") as file:
             file.write("Template with errors {{ id }")
             file.seek(0)
 
@@ -84,5 +82,5 @@ class TemplateRenderTestCase(TestCase):
                 body_context, subj_context=subject_context
             )
 
-            self.assertEquals(subject, "Important message for 333")
+            self.assertEqual(subject, "Important message for 333")
             self.assertIn("Test mail sent from testcase with 333", body)
