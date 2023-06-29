@@ -3,13 +3,18 @@ import logging
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.template import loader
-from django.template.exceptions import (
-    TemplateDoesNotExist, TemplateSyntaxError
-)
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from .models import MailTemplate
+
+try:
+    from django.template.exceptions import (
+        TemplateDoesNotExist, TemplateSyntaxError
+    )
+except ImportError:
+    from django.template.base import TemplateDoesNotExist, TemplateSyntaxError
+
 
 logger = logging.getLogger(__name__)
 

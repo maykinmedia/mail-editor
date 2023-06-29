@@ -42,8 +42,8 @@ This is only tested on a postgres database.
 
 Supported (read: Travis tested) are:
 
-- python 2.7, 3.4, 3.5
-- Django 1.8, 1.9, 1.10, 1.11
+- Python: 3.8, 3.9, 3.10, 3.11 (Python 3.11 works only with Django 4.1 and up)
+- Django: 3.2, 4.1, 4.2
 - PostgreSQL
 
 Warning
