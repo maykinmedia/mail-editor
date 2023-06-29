@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
 
 from mail_editor.helpers import find_template
+from mail_editor.models import MailTemplate
 
 try:
     from unittest.mock import patch
@@ -82,5 +83,5 @@ class TemplateRenderTestCase(TestCase):
                 body_context, subj_context=subject_context
             )
 
-            self.assertEqual(subject, "Important message for 333")
+            self.assertEquals(subject, "Important message for 333")
             self.assertIn("Test mail sent from testcase with 333", body)
