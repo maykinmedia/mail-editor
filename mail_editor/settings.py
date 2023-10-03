@@ -37,6 +37,8 @@ else:
 BASE_CONTEXT = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
 BASE_TEMPLATE_LOADER = getattr(django_settings, 'MAIL_EDITOR_BASE_TEMPLATE_LOADER', 'mail_editor.helpers.base_template_loader')
 
+UNIQUE_LANGUAGE_TEMPLATES = getattr(django_settings, 'MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES', True)
+
 
 def get_choices():
     choices = []
