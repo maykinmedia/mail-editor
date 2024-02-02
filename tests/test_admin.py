@@ -1,8 +1,5 @@
-import copy
-
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -39,8 +36,8 @@ class AdminPreviewTestCase(TestCase):
     def tearDown(self):
         patch.stopall()
 
+    @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_changelist_view(self):
-        settings.MAIL_EDITOR_CONF = copy.deepcopy(CONFIG)
 
         template = find_template("test_template")
 
@@ -51,8 +48,8 @@ class AdminPreviewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_change_view(self):
-        settings.MAIL_EDITOR_CONF = copy.deepcopy(CONFIG)
 
         template = find_template("test_template")
 

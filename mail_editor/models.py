@@ -56,7 +56,6 @@ class MailTemplate(models.Model):
 
     objects = MailTemplateManager()
 
-    CONFIG = {}
     CHOICES = None
 
     class Meta:
@@ -65,7 +64,7 @@ class MailTemplate(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
-        self.CONFIG = get_config()
+        self.config = get_config()[self.template_type]
 
     def __str__(self):
         if self.internal_name:
@@ -95,7 +94,6 @@ class MailTemplate(models.Model):
         return getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {}).copy()
 
     def get_preview_contexts(self):
-        config = self.CONFIG[self.template_type]
         base_context = self.get_base_context()
 
         def _get_context(section):
@@ -107,8 +105,8 @@ class MailTemplate(models.Model):
                 context[var.name] = value
             return context
 
-        body = _get_context(config["body"])
-        subject = _get_context(config["subject"])
+        body = _get_context(self.config["body"])
+        subject = _get_context(self.config["subject"])
         return subject, body
 
     def render(self, context, subj_context=None):

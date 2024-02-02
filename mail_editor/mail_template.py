@@ -17,7 +17,7 @@ class MailTemplateValidator(object):
 
     def __init__(self, template):
         self.template = template
-        self.config = template.CONFIG.get(template.template_type)
+        self.config = template.config
 
     def validate(self, field):
         if self.config is None:  # can't validate
