@@ -12,7 +12,6 @@ class TemplateVariableView(View):
         return HttpResponse(variables)
 
 
-# TODO add staff login checks to views
 class TemplateBrowserPreviewView(SingleObjectMixin, View):
     model = MailTemplate
 
