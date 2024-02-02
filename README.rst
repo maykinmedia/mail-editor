@@ -117,7 +117,7 @@ You can use the templates in some different ways. The shortest way is:
 Settings
 --------
 
-The following settings are mandatory:
+The following settings are an example:
 
 .. code:: python
 
@@ -136,16 +136,20 @@ The following settings are mandatory:
             'subject': [{
                 'name': 'site_name',
                 'description': ugettext_noop('This is the name of the site. From the sites'),
+                'example': ugettext_noop('Example site'),
             }],
             'body': [{
                 'name': 'name',
                 'description': ugettext_noop('This is the name of the user'),
+                'example': ugettext_noop('Jane Doe'),
             }, {
                 'name': 'site_name',
                 'description': ugettext_noop('This is the name of the site. From the sites'),
+                'example': ugettext_noop('Example site'),
             }, {
                 'name': 'activation_link',
                 'description': ugettext_noop('This is the link to activate their account.'),
+                'example': ugettext_noop('/'),
             }]
         },
         ...

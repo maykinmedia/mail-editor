@@ -1,3 +1,4 @@
+import copy
 from tempfile import TemporaryFile
 
 from django.conf import settings
@@ -21,7 +22,7 @@ CONFIG = {
         "subject_default": _("Important message for {{ id }}"),
         "body_default": _("Test mail sent from testcase with {{ id }}"),
         "subject": [{"name": "id", "description": ""}],
-        "body": [{"name": "id", "description": ""}],
+        "body": [{"name": "id", "description": "", "example": "321"}],
     }
 }
 
@@ -37,7 +38,7 @@ class TemplateRenderTestCase(TestCase):
         patch.stopall()
 
     def test_simple(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+        settings.MAIL_EDITOR_CONF = copy.deepcopy(CONFIG)
 
         subject_context = {"id": "111"}
         body_context = {"id": "111"}
@@ -52,7 +53,7 @@ class TemplateRenderTestCase(TestCase):
         self.assertIn("Test mail sent from testcase with 111", body)
 
     def test_incorrect_base_path(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+        settings.MAIL_EDITOR_CONF = copy.deepcopy(CONFIG)
 
         subject_context = {"id": "222"}
         body_context = {"id": "222"}
@@ -68,7 +69,7 @@ class TemplateRenderTestCase(TestCase):
         self.assertIn("Test mail sent from testcase with 222", body)
 
     def test_base_template_errors(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+        settings.MAIL_EDITOR_CONF = copy.deepcopy(CONFIG)
 
         subject_context = {"id": "333"}
         body_context = {"id": "333"}
@@ -78,7 +79,7 @@ class TemplateRenderTestCase(TestCase):
             file.seek(0)
 
             template = find_template("test_template")
-            template.base_template_path = file.name
+            template.base_template_path = "__not-exists__"
 
             subject, body = template.render(
                 body_context, subj_context=subject_context
@@ -86,3 +87,20 @@ class TemplateRenderTestCase(TestCase):
 
             self.assertEquals(subject, "Important message for 333")
             self.assertIn("Test mail sent from testcase with 333", body)
+
+    def test_render_preview(self):
+        settings.MAIL_EDITOR_CONF = copy.deepcopy(CONFIG)
+
+        template = find_template("test_template")
+
+        subject_context, body_context = template.get_preview_contexts()
+
+        subject, body = template.render(
+            body_context, subj_context=subject_context
+        )
+
+        # rendered placeholder
+        self.assertEquals(subject, "Important message for --id--")
+        # rendered example
+        self.assertIn("Test mail sent from testcase with 321", body)
+
