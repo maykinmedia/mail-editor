@@ -24,6 +24,7 @@ CONFIG = {
 }
 
 
+@override_settings(MAIL_EDITOR_CONF=CONFIG)
 class AdminPreviewTestCase(TestCase):
     def setUp(self):
         site_patch = patch("mail_editor.helpers.get_current_site")
@@ -36,26 +37,38 @@ class AdminPreviewTestCase(TestCase):
     def tearDown(self):
         patch.stopall()
 
-    @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_changelist_view(self):
-
         template = find_template("test_template")
 
         url = reverse('admin:{}_{}_changelist'.format(template._meta.app_label, template._meta.model_name))
 
         self.client.force_login(self.super_user)
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_change_view(self):
-
         template = find_template("test_template")
 
         url = reverse('admin:{}_{}_change'.format(template._meta.app_label, template._meta.model_name), args=[template.id])
 
         self.client.force_login(self.super_user)
         response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
+    def test_variable_view(self):
+        template = find_template("test_template")
+
+        url = reverse('admin:mailtemplate_variables', args=[template.template_type])
+
+        self.client.force_login(self.super_user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_preview_view(self):
+        template = find_template("test_template")
+
+        url = reverse('admin:mailtemplate_preview', args=[template.id])
+
+        self.client.force_login(self.super_user)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
