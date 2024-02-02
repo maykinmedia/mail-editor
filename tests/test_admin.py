@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -72,3 +73,24 @@ class AdminPreviewTestCase(TestCase):
         self.client.force_login(self.super_user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, _("Important message for --id--"))
+
+        # test sending the email
+        self.client.post(url, {"recipient": "test@example.com"})
+
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.subject, _("Important message for --id--"))
+        self.assertIn(str(_("Test mail sent from testcase with --id--")), message.body)
+
+    def test_render_view(self):
+        template = find_template("test_template")
+
+        url = reverse('admin:mailtemplate_render', args=[template.id])
+
+        self.client.force_login(self.super_user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, _("Test mail sent from testcase with --id--"))

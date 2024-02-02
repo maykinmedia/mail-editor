@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from .forms import MailTemplateForm
 from .models import MailTemplate
 from .settings import settings
-from .views import TemplateBrowserPreviewView, TemplateVariableView
+from .views import TemplateBrowserPreviewView, TemplateEmailPreviewFormView, TemplateVariableView
 
 
 @admin.register(MailTemplate)
@@ -30,7 +30,6 @@ class MailTemplateAdmin(admin.ModelAdmin):
     readonly_fields = (
         'get_variable_help_text',
         'get_preview_link',
-        'get_preview_url',
     )
     search_fields = (
         'internal_name',
@@ -66,14 +65,14 @@ class MailTemplateAdmin(admin.ModelAdmin):
         url = self.get_preview_url(obj)
         if url:
             return format_html('<a href="{}">{}</a>', url, _("Open"))
+        else:
+            return _("Save to enable preview")
 
     get_preview_link.short_description = _("Preview")
 
     def get_preview_url(self, obj=None):
         if obj:
             return reverse("admin:mailtemplate_preview", kwargs={"pk": obj.id})
-
-    get_preview_url.short_description = _("Preview URL")
 
     def get_urls(self):
         # reminder: when using admin templates also add self.admin_site.each_context(request)
@@ -83,6 +82,9 @@ class MailTemplateAdmin(admin.ModelAdmin):
                 name='mailtemplate_variables'),
             url(r'^preview/(?P<pk>[0-9]+)/$',
                 self.admin_site.admin_view(TemplateBrowserPreviewView.as_view()),
+                name='mailtemplate_render'),
+            url(r'^email/(?P<pk>[0-9]+)/$',
+                self.admin_site.admin_view(TemplateEmailPreviewFormView.as_view()),
                 name='mailtemplate_preview'),
         ] + super().get_urls()
 
