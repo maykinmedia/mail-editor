@@ -1,12 +1,14 @@
 from django.conf import settings as django_settings
+from django.conf.urls import url
 from django.contrib import admin
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from .forms import MailTemplateForm
 from .models import MailTemplate
 from .settings import settings
+from .views import TemplateBrowserPreviewView, TemplateVariableView
 
 
 @admin.register(MailTemplate)
@@ -69,9 +71,20 @@ class MailTemplateAdmin(admin.ModelAdmin):
 
     def get_preview_url(self, obj=None):
         if obj:
-            return reverse("mail_editor:template_preview", kwargs={"pk": obj.id})
+            return reverse("admin:mailtemplate_preview", kwargs={"pk": obj.id})
 
     get_preview_url.short_description = _("Preview URL")
+
+    def get_urls(self):
+        # reminder: when using admin templates also add self.admin_site.each_context(request)
+        return [
+            url(r'^variables/(?P<template_type>[-\w]+)/$',
+                self.admin_site.admin_view(TemplateVariableView.as_view()),
+                name='mailtemplate_variables'),
+            url(r'^preview/(?P<pk>[0-9]+)/$',
+                self.admin_site.admin_view(TemplateBrowserPreviewView.as_view()),
+                name='mailtemplate_preview'),
+        ] + super().get_urls()
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if db_field.name == "language":
@@ -83,15 +96,18 @@ class MailTemplateAdmin(admin.ModelAdmin):
     def get_type_display(self, obj):
         conf = settings.TEMPLATES.get(obj.template_type)
         return conf.get('name')
+
     get_type_display.short_description = _('Template Type')
 
     def get_description(self, obj):
         conf = settings.TEMPLATES.get(obj.template_type)
         return conf.get('description')
+
     get_description.short_description = _('Type Description')
 
     def get_variable_help_text(self, obj):
         if not obj.template_type:
             return _('Please save the template to load the variables')
         return obj.get_variable_help_text()
+
     get_variable_help_text.short_description = _('Subject variables')
