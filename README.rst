@@ -178,9 +178,13 @@ You can set template variables to all of the mail templates in the following fas
 
 .. code:: python
 
+# static dictionary
 MAIL_EDITOR_BASE_CONTEXT = {
     'url': 'http://www.maykinmedia.nl',
 }
+
+# import path to callable that returns a dictionary
+MAIL_EDITOR_DYNAMIC_CONTEXT = "dotted.path.to.callable"
 
 
 Installation

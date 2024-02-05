@@ -91,7 +91,11 @@ class MailTemplate(models.Model):
                 )
 
     def get_base_context(self):
-        return getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {}).copy()
+        base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {}).copy()
+        dynamic = settings.DYNAMIC_CONTEXT
+        if dynamic:
+            base_context.update(dynamic())
+        return base_context
 
     def get_preview_contexts(self):
         base_context = self.get_base_context()

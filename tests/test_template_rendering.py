@@ -27,6 +27,12 @@ CONFIG = {
 }
 
 
+def dynamic_context():
+    return {
+        "id": "DYNAMIC"
+    }
+
+
 class TemplateRenderTestCase(TestCase):
     def setUp(self):
         site_patch = patch("mail_editor.helpers.get_current_site")
@@ -50,6 +56,35 @@ class TemplateRenderTestCase(TestCase):
 
         self.assertEquals(subject, "Important message for 111")
         self.assertIn("Test mail sent from testcase with 111", body)
+
+    @override_settings(MAIL_EDITOR_CONF=CONFIG, MAIL_EDITOR_BASE_CONTEXT={"id": "BASE"})
+    def test_base_context(self):
+        subject_context = {}
+        body_context = {}
+
+        template = find_template("test_template")
+
+        subject, body = template.render(
+            body_context, subj_context=subject_context
+        )
+
+        self.assertEquals(subject, "Important message for BASE")
+        self.assertIn("Test mail sent from testcase with BASE", body)
+
+    @override_settings(MAIL_EDITOR_CONF=CONFIG,
+                       MAIL_EDITOR_DYNAMIC_CONTEXT="tests.test_template_rendering.dynamic_context")
+    def test_dynamic_context(self):
+        subject_context = {}
+        body_context = {}
+
+        template = find_template("test_template")
+
+        subject, body = template.render(
+            body_context, subj_context=subject_context
+        )
+
+        self.assertEquals(subject, "Important message for DYNAMIC")
+        self.assertIn("Test mail sent from testcase with DYNAMIC", body)
 
     @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_incorrect_base_path(self):

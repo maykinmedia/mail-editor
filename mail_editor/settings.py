@@ -1,6 +1,7 @@
 import warnings
 
 from django.conf import settings as django_settings
+from django.utils.module_loading import import_string
 
 from .mail_template import Variable
 
@@ -49,6 +50,12 @@ class Settings(object):
     @property
     def BASE_CONTEXT(self):
         return getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
+
+    @property
+    def DYNAMIC_CONTEXT(self):
+        dynamic = getattr(django_settings, 'MAIL_EDITOR_DYNAMIC_CONTEXT', None)
+        if dynamic:
+            return import_string(dynamic)
 
     @property
     def BASE_TEMPLATE_LOADER(self):
