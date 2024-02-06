@@ -1,0 +1,93 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{# NOTE: this started as a copy of admin/change_form.html but is stripped and modified. #}
+
+{% block extrahead %}{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'change' original.id %}">{{ original|truncatewords:"18" }}</a>
+&rsaquo; {% translate "Preview" %}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block content %}<div id="content-main">
+{% block object-tools %}
+{% endblock %}
+<form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}
+<div>
+{% if errors %}
+    <p class="errornote">
+    {% if errors|length == 1 %}{% translate "Please correct the error below." %}{% else %}{% translate "Please correct the errors below." %}{% endif %}
+    </p>
+    {{ form.non_field_errors }}
+{% endif %}
+
+{% block field_sets %}
+<div>
+    {{ form.non_field_errors }}
+    {{ form.recipient.errors }}
+    <div>
+        <label for="{{ form.recipient.id_for_label }}">{{ form.recipient.label }}:</label>
+        &nbsp;
+        {{ form.recipient }}
+        <input type="submit" value="{% translate "Send preview to email" %}">
+        &nbsp;
+        <a href="{{ render_url }}">{% translate "Open preview in full window" %}</a>
+        </div>
+    <br>
+</div>
+{% endblock %}
+
+</div>
+</form>
+
+{% block inline_preview %}
+<div>
+    <style>
+        #id_recipient {
+           width: 300px; 
+        }
+        .mailtemplate__preview {
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .mailtemplate__preview__subject {
+            box-sizing: border-box;
+            border: 2px solid #ddd;
+            font-size: 120%;
+            width: 100%;
+            margin-bottom: 0.5em;
+            padding: 0.5em;
+        }
+        .mailtemplate__preview__frame {
+            box-sizing: border-box;
+            border: 2px solid #ddd;
+            width: 100%;
+            height: 800px;
+        }
+    </style>
+    <div class="mailtemplate__preview">
+        <div class="mailtemplate__preview__subject">{{ subject }}</div>
+        <iframe class="mailtemplate__preview__frame" src="{{ render_url }}"></iframe>
+    </div>
+</div>
+{% endblock %}
+
+</div>
+{% endblock %}

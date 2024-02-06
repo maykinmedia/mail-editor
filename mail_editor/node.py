@@ -2,7 +2,7 @@ import os
 
 from django.core.exceptions import ImproperlyConfigured
 
-from . import settings
+from .settings import settings
 
 
 def locate_package_json():

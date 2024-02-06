@@ -16,7 +16,7 @@ from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from . import settings
+from .settings import get_config, settings
 from .mail_template import validate_template
 from .node import locate_package_json
 from .utils import variable_help_text
@@ -56,7 +56,6 @@ class MailTemplate(models.Model):
 
     objects = MailTemplateManager()
 
-    CONFIG = {}
     CHOICES = None
 
     class Meta:
@@ -65,7 +64,7 @@ class MailTemplate(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
-        self.CONFIG = settings.get_config()
+        self.config = get_config()[self.template_type]
 
     def __str__(self):
         if self.internal_name:
@@ -91,8 +90,31 @@ class MailTemplate(models.Model):
                     _('Mail template with this type and language already exists')
                 )
 
+    def get_base_context(self):
+        base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {}).copy()
+        dynamic = settings.DYNAMIC_CONTEXT
+        if dynamic:
+            base_context.update(dynamic())
+        return base_context
+
+    def get_preview_contexts(self):
+        base_context = self.get_base_context()
+
+        def _get_context(section):
+            context = {}
+            for var in section:
+                value = var.example or base_context.get(var.name, "")
+                if not value:
+                    value = "--{}--".format(var.name)
+                context[var.name] = value
+            return context
+
+        body = _get_context(self.config["body"])
+        subject = _get_context(self.config["subject"])
+        return subject, body
+
     def render(self, context, subj_context=None):
-        base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
+        base_context = self.get_base_context()
 
         if not subj_context:
             subj_context = context

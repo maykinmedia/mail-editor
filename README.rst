@@ -117,7 +117,7 @@ You can use the templates in some different ways. The shortest way is:
 Settings
 --------
 
-The following settings are mandatory:
+The following settings are an example:
 
 .. code:: python
 
@@ -136,16 +136,20 @@ The following settings are mandatory:
             'subject': [{
                 'name': 'site_name',
                 'description': ugettext_noop('This is the name of the site. From the sites'),
+                'example': ugettext_noop('Example site'),
             }],
             'body': [{
                 'name': 'name',
                 'description': ugettext_noop('This is the name of the user'),
+                'example': ugettext_noop('Jane Doe'),
             }, {
                 'name': 'site_name',
                 'description': ugettext_noop('This is the name of the site. From the sites'),
+                'example': ugettext_noop('Example site'),
             }, {
                 'name': 'activation_link',
                 'description': ugettext_noop('This is the link to activate their account.'),
+                'example': ugettext_noop('/'),
             }]
         },
         ...
@@ -174,9 +178,13 @@ You can set template variables to all of the mail templates in the following fas
 
 .. code:: python
 
+# static dictionary
 MAIL_EDITOR_BASE_CONTEXT = {
     'url': 'http://www.maykinmedia.nl',
 }
+
+# import path to callable that returns a dictionary
+MAIL_EDITOR_DYNAMIC_CONTEXT = "dotted.path.to.callable"
 
 
 Installation

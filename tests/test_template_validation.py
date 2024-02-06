@@ -1,3 +1,5 @@
+import copy
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -36,8 +38,9 @@ class TemplateValidationTests(TestCase):
             subject='{{ bar }}',
             body='{{ bar }}'
         )
+        template.config = copy.deepcopy(template.config)
+        template.config["subject"][0].required = True
 
-        template.CONFIG["template"]["subject"][0].required = True
         with pytest.raises(ValidationError) as excinfo:
             validate_template(template)
 
@@ -62,7 +65,9 @@ class TemplateValidationTests(TestCase):
         )
 
         # Make foo required
-        template.CONFIG["template"]["subject"][0].required = True
+        template.config = copy.deepcopy(template.config)
+        template.config["subject"][0].required = True
+
         try:
             validate_template(template)
         except ValidationError:

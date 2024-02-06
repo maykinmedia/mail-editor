@@ -17,7 +17,7 @@ class MailTemplateValidator(object):
 
     def __init__(self, template):
         self.template = template
-        self.config = template.CONFIG.get(template.template_type)
+        self.config = template.config
 
     def validate(self, field):
         if self.config is None:  # can't validate
@@ -110,10 +110,11 @@ class Variable(object):
     present in the mail template, but this can be enforced.
     """
 
-    def __init__(self, name, description='', required=False):
+    def __init__(self, name, description='', required=False, example=''):
         self.name = name
         self.description = description
         self.required = required
+        self.example = example
 
     def get_html_list_item(self):
         variable_string = '<li>'
@@ -125,5 +126,11 @@ class Variable(object):
         if self.description:
             variable_string += ': <i>{}</i>'.format(self.description)
 
+        if self.example:
+            variable_string += ' ("{}")'.format(self.example)
+
         variable_string += '</li>'
         return variable_string
+
+    def __str__(self):
+        return self.name

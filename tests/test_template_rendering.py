@@ -1,7 +1,8 @@
+import copy
 from tempfile import TemporaryFile
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from mail_editor.models import MailTemplate
@@ -21,9 +22,15 @@ CONFIG = {
         "subject_default": _("Important message for {{ id }}"),
         "body_default": _("Test mail sent from testcase with {{ id }}"),
         "subject": [{"name": "id", "description": ""}],
-        "body": [{"name": "id", "description": ""}],
+        "body": [{"name": "id", "description": "", "example": "321"}],
     }
 }
+
+
+def dynamic_context():
+    return {
+        "id": "DYNAMIC"
+    }
 
 
 class TemplateRenderTestCase(TestCase):
@@ -36,9 +43,8 @@ class TemplateRenderTestCase(TestCase):
     def tearDown(self):
         patch.stopall()
 
+    @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_simple(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
-
         subject_context = {"id": "111"}
         body_context = {"id": "111"}
 
@@ -51,9 +57,37 @@ class TemplateRenderTestCase(TestCase):
         self.assertEquals(subject, "Important message for 111")
         self.assertIn("Test mail sent from testcase with 111", body)
 
-    def test_incorrect_base_path(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
+    @override_settings(MAIL_EDITOR_CONF=CONFIG, MAIL_EDITOR_BASE_CONTEXT={"id": "BASE"})
+    def test_base_context(self):
+        subject_context = {}
+        body_context = {}
 
+        template = find_template("test_template")
+
+        subject, body = template.render(
+            body_context, subj_context=subject_context
+        )
+
+        self.assertEquals(subject, "Important message for BASE")
+        self.assertIn("Test mail sent from testcase with BASE", body)
+
+    @override_settings(MAIL_EDITOR_CONF=CONFIG,
+                       MAIL_EDITOR_DYNAMIC_CONTEXT="tests.test_template_rendering.dynamic_context")
+    def test_dynamic_context(self):
+        subject_context = {}
+        body_context = {}
+
+        template = find_template("test_template")
+
+        subject, body = template.render(
+            body_context, subj_context=subject_context
+        )
+
+        self.assertEquals(subject, "Important message for DYNAMIC")
+        self.assertIn("Test mail sent from testcase with DYNAMIC", body)
+
+    @override_settings(MAIL_EDITOR_CONF=CONFIG)
+    def test_incorrect_base_path(self):
         subject_context = {"id": "222"}
         body_context = {"id": "222"}
 
@@ -67,9 +101,8 @@ class TemplateRenderTestCase(TestCase):
         self.assertEquals(subject, "Important message for 222")
         self.assertIn("Test mail sent from testcase with 222", body)
 
+    @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_base_template_errors(self):
-        settings.MAIL_EDITOR_CONF = CONFIG.copy()
-
         subject_context = {"id": "333"}
         body_context = {"id": "333"}
 
@@ -78,7 +111,7 @@ class TemplateRenderTestCase(TestCase):
             file.seek(0)
 
             template = find_template("test_template")
-            template.base_template_path = file.name
+            template.base_template_path = "__not-exists__"
 
             subject, body = template.render(
                 body_context, subj_context=subject_context
@@ -86,3 +119,19 @@ class TemplateRenderTestCase(TestCase):
 
             self.assertEquals(subject, "Important message for 333")
             self.assertIn("Test mail sent from testcase with 333", body)
+
+    @override_settings(MAIL_EDITOR_CONF=CONFIG)
+    def test_render_preview(self):
+        template = find_template("test_template")
+
+        subject_context, body_context = template.get_preview_contexts()
+
+        subject, body = template.render(
+            body_context, subj_context=subject_context
+        )
+
+        # rendered placeholder
+        self.assertEquals(subject, "Important message for --id--")
+        # rendered example
+        self.assertIn("Test mail sent from testcase with 321", body)
+
