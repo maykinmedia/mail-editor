@@ -58,6 +58,15 @@ class Settings(object):
             return import_string(dynamic)
 
     @property
+    def BASE_HOST(self):
+        """
+        protocol, domain and (optional) port, no ending slash
+
+        used to retrieve images for embedding and fix URLs
+        """
+        return getattr(django_settings, 'MAIL_EDITOR_BASE_HOST', "")
+
+    @property
     def BASE_TEMPLATE_LOADER(self):
         return getattr(django_settings, 'MAIL_EDITOR_BASE_TEMPLATE_LOADER', 'mail_editor.helpers.base_template_loader')
 

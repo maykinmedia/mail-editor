@@ -67,3 +67,8 @@ MAIL_EDITOR_CONF = {
     }
 }
 
+MAIL_EDITOR_BASE_HOST = "http://testserver"
+
+SILENCED_SYSTEM_CHECKS = [
+    "models.W042",  # AutoField warning not relevant for tests
+]

@@ -1,0 +1,55 @@
+from django.test import TestCase
+
+from mail_editor.process import cid_for_bytes, make_url_absolute, process_html
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
+
+class ProcessTestCase(TestCase):
+    @patch("mail_editor.process.cid_for_bytes", return_value="MY_CID")
+    @patch("mail_editor.process.load_image", return_value=(b"abc", "image/jpg"))
+    def test_process_html_extract_images(self, m1, m2):
+        html = '<html><body><p><img src="foo.jpg"></p></body></html>'
+        result, objects = process_html(html)
+
+        expected_html = f'<html><body><p><img src="cid:MY_CID"></p></body></html>'
+
+        self.assertEqual(result.rstrip(), expected_html)
+        self.assertEqual(objects, [("MY_CID", b"abc", "image/jpg")])
+
+    def test_process_html_fix_urls(self):
+        html = '<html><body><p><a href="/foo">bar</a></p></body></html>'
+        result, objects = process_html(html, base_url="https://example.com")
+
+        expected_html = f'<html><body><p><a href="https://example.com/foo">bar</a></p></body></html>'
+
+        self.assertEqual(result.rstrip(), expected_html)
+        self.assertEqual(objects, [])
+
+
+class ProcessHelpersTestCase(TestCase):
+    def test_make_url_absolute(self):
+        tests = [
+            ("http://example.com", "/foo", "http://example.com/foo"),
+            ("http://example.com", "foo", "http://example.com/foo"),
+            ("http://example.com", "", "http://example.com"),
+            ("http://example.com", "http://example.com/foo", "http://example.com/foo"),
+            ("http://example.com", "", "http://example.com"),
+            ("", "http://example.com/foo", "http://example.com/foo"),
+            ("", "foo", "/foo"),
+            ("", "", "/"),
+        ]
+        for i, (base, url, expected) in enumerate(tests):
+            with self.subTest((i, base, url)):
+                self.assertEqual(make_url_absolute(url, base), expected)
+
+    def test_cid_for_bytes(self):
+        self.assertEqual(cid_for_bytes(b"abc"), cid_for_bytes(b"abc"))
+        self.assertNotEqual(cid_for_bytes(b"123"), cid_for_bytes(b"abc"))
+
+    def test_load_image(self):
+        # TODO
+        pass

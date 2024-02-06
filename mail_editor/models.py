@@ -2,7 +2,9 @@ import copy
 import logging
 import os
 import subprocess
+from email.mime.image import MIMEImage
 from tempfile import NamedTemporaryFile
+from xml import etree
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
@@ -16,6 +18,7 @@ from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from .process import process_html
 from .settings import get_config, settings
 from .mail_template import validate_template
 from .node import locate_package_json
@@ -144,8 +147,7 @@ class MailTemplate(models.Model):
         body_context.update({'content': partial_body})
         body = template_function(self.base_template_path, body_context)
 
-        # TODO: I made the package.json stuff optional. Maybe it should be removed completely since it adds 3 settings,
-        # seems for a limited use-case, and it uses subproces...
+        # inline styles
         package_json = locate_package_json()
         if package_json:
             env = os.environ.copy()
@@ -177,12 +179,16 @@ class MailTemplate(models.Model):
                             `(<filename>, <content>, [mime type])`
         """
         subject, body = self.render(context, subj_context)
+
+        body, cid_attachments = process_html(body, base_url=settings.BASE_HOST)
+
         text_body = txt or strip_tags(body)
 
         email_message = EmailMultiAlternatives(
-            subject=subject, body=text_body, from_email=django_settings.DEFAULT_FROM_EMAIL,
+            subject=subject, body=body, from_email=django_settings.DEFAULT_FROM_EMAIL,
             to=to_addresses, cc=cc_addresses, bcc=bcc_addresses)
-        email_message.attach_alternative(body, 'text/html')
+        email_message.content_subtype = "html"
+        email_message.attach_alternative(text_body, 'text/plain')
 
         if attachments:
             for attachment in attachments:
@@ -192,6 +198,14 @@ class MailTemplate(models.Model):
                     email_message.attach_file(*attachment)
                 else:
                     email_message.attach(*attachment)
+
+        if cid_attachments:
+            for cid, content, subtype in cid_attachments:
+                subtype = subtype.split("/", maxsplit=1)
+                assert subtype[0] == "image"
+                mime_image = MIMEImage(content, _subtype=subtype[1])
+                mime_image.add_header('Content-ID', cid)
+                email_message.attach(mime_image)
 
         return email_message
 
