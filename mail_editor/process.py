@@ -1,17 +1,47 @@
 import hashlib
+import os
+from mimetypes import guess_type
 
+import requests
 from lxml import etree
 
+from django.conf import settings
 
-def load_image(url):
-    import requests
-    # TODO check domains?
-    # TODO check data urls
-    r = requests.get(url)
-    content_type = r.headers["Content-Type"]
+
+def read_image_file(path):
+    with open(path, "rb") as f:
+        content = f.read()
+    content_type, _encoding = guess_type(path)
+    return content, content_type
+
+def load_image(url, base_url):
+    # TODO support data urls?
+    # TODO handle errors
+    # TODO use storage backend API instead of manually building paths etc
+    # TODO ~~support more storage backends~~
+
+    if url.startswith(settings.STATIC_URL):
+        url = url[len(settings.STATIC_URL):]
+        url = os.path.join(settings.STATIC_ROOT, url)
+
+        content, content_type = read_image_file(url)
+
+    elif url.startswith(settings.MEDIA_URL):
+        url = url[len(settings.MEDIA_URL):]
+        url = os.path.join(settings.MEDIA_ROOT, url)
+
+        content, content_type = read_image_file(url)
+    else:
+        url = make_url_absolute(base_url)
+        # TODO check domains?
+        r = requests.get(url)
+        content_type = r.headers["Content-Type"]
+        content = r.content
+
     if not content_type.startswith("image/"):
+        # TODO lets not blow-up
         raise Exception("not an image file")
-    return r.content, content_type
+    return content, content_type
 
 
 def make_url_absolute(url, base_url=""):
@@ -47,8 +77,7 @@ def process_html(html, base_url="", extract_attachments=True, fix_links=True):
             if url in url_cid_cache:
                 cid = url_cid_cache[url]
             else:
-                url = make_url_absolute(url, base_url)
-                content, content_type = load_image(url)
+                content, content_type = load_image(url, base_url)
                 cid = cid_for_bytes(content)
                 image_attachments[cid] = (content, content_type)
             img.set("src", f"cid:{cid}")

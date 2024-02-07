@@ -1,6 +1,8 @@
+import os
+
 from django.test import TestCase
 
-from mail_editor.process import cid_for_bytes, make_url_absolute, process_html
+from mail_editor.process import cid_for_bytes, load_image, make_url_absolute, process_html
 
 try:
     from unittest.mock import patch
@@ -51,5 +53,20 @@ class ProcessHelpersTestCase(TestCase):
         self.assertNotEqual(cid_for_bytes(b"123"), cid_for_bytes(b"abc"))
 
     def test_load_image(self):
-        # TODO
-        pass
+        # TODO test url loader
+
+        with self.subTest("static & png"):
+            with open(os.path.join(os.path.dirname(__file__), 'static/logo.png'), "rb") as f:
+                expected = f.read()
+
+            actual, content_type = load_image("/static/logo.png","http://not_testserver")
+            self.assertEqual(actual, expected)
+            self.assertEqual(content_type, "image/png")
+
+        with self.subTest("media & jpg"):
+            with open(os.path.join(os.path.dirname(__file__), 'media/logo.jpg'), "rb") as f:
+                expected = f.read()
+
+            actual, content_type = load_image("/media/logo.jpg","http://not_testserver")
+            self.assertEqual(actual, expected)
+            self.assertEqual(content_type, "image/jpeg")

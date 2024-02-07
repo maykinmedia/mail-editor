@@ -72,3 +72,9 @@ MAIL_EDITOR_BASE_HOST = "http://testserver"
 SILENCED_SYSTEM_CHECKS = [
     "models.W042",  # AutoField warning not relevant for tests
 ]
+
+
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(os.path.dirname(__file__), "media")
