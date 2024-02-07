@@ -1,10 +1,7 @@
 import copy
 import logging
 import os
-import subprocess
 from email.mime.image import MIMEImage
-from tempfile import NamedTemporaryFile
-from xml import etree
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
@@ -12,7 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models import Q
-from django.template import Context, Template, loader
+from django.template import Context, Template
 from django.utils.html import strip_tags
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
@@ -21,7 +18,6 @@ from django.utils.translation import ugettext_lazy as _
 from .process import process_html
 from .settings import get_config, settings
 from .mail_template import validate_template
-from .node import locate_package_json
 from .utils import variable_help_text
 
 logger = logging.getLogger(__name__)
@@ -146,25 +142,6 @@ class MailTemplate(models.Model):
         body_context = copy.deepcopy(base_context)
         body_context.update({'content': partial_body})
         body = template_function(self.base_template_path, body_context)
-
-        # inline styles
-        package_json = locate_package_json()
-        if package_json:
-            env = os.environ.copy()
-            if settings.ADD_BIN_PATH:
-                env['PATH'] = '{}:{}'.format(env['PATH'], settings.BIN_PATH)
-
-            with NamedTemporaryFile() as temp_file:
-                temp_file.write(bytes(body, 'UTF-8'))
-                process = subprocess.Popen(
-                    "inject-inline-styles.js {}".format(temp_file.name), shell=True,
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    env=env, universal_newlines=True, cwd=os.path.dirname(package_json)
-                )
-
-                body, err = process.communicate()
-                if err:
-                    raise Exception(err)
 
         return tpl_subject.render(subj_ctx), mark_safe(body)
 

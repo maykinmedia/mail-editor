@@ -80,10 +80,10 @@ class EmailSendTestCase(TestCase):
         self.assertEqual(message.subject, _("Important message for 111"))
 
         self.assertNotIn('<img src="foo.jpg">', message.body)
-        self.assertIn('<img src="cid:MY_CID">', message.body)
+        self.assertIn('<img src="cid:MY_CID"', message.body)
 
         self.assertNotIn('<a href="foo">', message.body)
-        self.assertIn('<a href="http://testserver/foo">', message.body)
+        self.assertIn('<a href="http://testserver/foo"', message.body)
 
         self.assertEqual(len(message.attachments), 1)
         attach = message.attachments[0]

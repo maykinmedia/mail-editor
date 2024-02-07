@@ -3,6 +3,7 @@ import itertools
 import os
 from mimetypes import guess_type
 
+import css_inline
 import requests
 from lxml import etree
 
@@ -21,7 +22,7 @@ def load_image(url, base_url):
     # TODO handle errors
     # TODO use storage backend API instead of manually building paths etc
     # TODO ~~support more storage backends~~
-
+    # TODO refactor because this looks bad
     if url.startswith(settings.STATIC_URL):
         url = url[len(settings.STATIC_URL):]
         url = os.path.join(settings.STATIC_ROOT, url)
@@ -62,7 +63,20 @@ def make_url_absolute(url, base_url=""):
     return base_url + url
 
 
-def process_html(html, base_url="", extract_attachments=True, fix_links=True):
+def html_inline_css(html):
+    inliner = css_inline.CSSInliner(
+        inline_style_tags=True,
+        keep_style_tags=False,
+        keep_link_tags=False,
+        load_remote_stylesheets=False,
+        extra_css=None,
+        base_url=f"file://{settings.STATIC_ROOT}",
+    )
+    html = inliner.inline(html)
+    return html
+
+
+def process_html(html, base_url="", extract_attachments=True, inline_css=True):
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
@@ -84,18 +98,45 @@ def process_html(html, base_url="", extract_attachments=True, fix_links=True):
                 image_attachments[cid] = (content, content_type)
             img.set("src", f"cid:{cid}")
 
-    if fix_links:
-        # TODO figure out how lxml/xpath OR operator works
-        for href_elem in itertools.chain(root.iterfind(".//a"), root.iterfind(".//link")):
+    fix_attribs = [
+        (".//a", "href"),
+    ]
+    if not extract_attachments:
+        fix_attribs += [
+            (".//img", "src"),
+        ]
+    if not inline_css:
+        fix_attribs += [
+            (".//link", "href"),
+        ]
+
+    for selector, attr in fix_attribs:
+        for elem in root.iterfind(selector):
+            url = elem.get(attr)
+            if not url:
+                continue
+            elem.set(attr, make_url_absolute(url, base_url))
+
+    if inline_css:
+        for href_elem in root.iterfind(".//link"):
             url = href_elem.get("href")
             if not url:
                 continue
-            href_elem.set("href", make_url_absolute(url, base_url))
+            if url.startswith(settings.STATIC_URL):
+                # this is needed so css-inliner's can use a file:// base_url
+                url = url[len(settings.STATIC_URL)]
+                href_elem.set("href", url)
+            else:
+                href_elem.set("href", make_url_absolute(url, base_url))
 
-    result = etree.tostring(root, encoding="utf8", pretty_print=False, method="html")
+    result = etree.tostring(root, encoding="utf8", pretty_print=False, method="html").decode("utf8")
+
+    if inline_css:
+        result = html_inline_css(result)
+
     attachments = [(cid, content, ct) for cid, (content, ct) in image_attachments.items()]
 
-    return result.decode("utf8"), attachments
+    return result, attachments
 
 
 def cid_for_bytes(content):

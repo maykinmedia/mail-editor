@@ -13,29 +13,38 @@ except ImportError:
 class ProcessTestCase(TestCase):
     @patch("mail_editor.process.cid_for_bytes", return_value="MY_CID")
     @patch("mail_editor.process.load_image", return_value=(b"abc", "image/jpg"))
-    def test_process_html_extract_images(self, m1, m2):
+    def test_extract_images(self, m1, m2):
         html = '<html><body><p><img src="foo.jpg"></p></body></html>'
         result, objects = process_html(html)
 
-        expected_html = f'<html><body><p><img src="cid:MY_CID"></p></body></html>'
+        expected_html = '<html><head></head><body><p><img src="cid:MY_CID"></p></body></html>'
 
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [("MY_CID", b"abc", "image/jpg")])
 
-    def test_process_html_fix_anchor_urls(self):
+    def test_fix_anchor_urls(self):
         html = '<html><body><p><a href="/foo">bar</a></p></body></html>'
         result, objects = process_html(html, base_url="https://example.com")
 
-        expected_html = f'<html><body><p><a href="https://example.com/foo">bar</a></p></body></html>'
+        expected_html = '<html><head></head><body><p><a href="https://example.com/foo">bar</a></p></body></html>'
 
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [])
 
-    def test_process_html_fix_link_urls(self):
+    def test_fix_link_urls(self):
         html = '<html><body><link href="/foo.css"></body></html>'
         result, objects = process_html(html, base_url="https://example.com")
 
-        expected_html = f'<html><body><link href="https://example.com/foo.css"></body></html>'
+        expected_html = '<html><head></head><body><link href="https://example.com/foo.css"></body></html>'
+
+        self.assertEqual(result.rstrip(), expected_html)
+        self.assertEqual(objects, [])
+
+    def test_inline_css(self):
+        html = '<html><head><style>h1 { color:red; }</style></head><body><h1>foo</h1></body></html>'
+        result, objects = process_html(html)
+
+        expected_html = '<html><head></head><body><h1 style="color: red;">foo</h1></body></html>'
 
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [])

@@ -15,9 +15,12 @@ setup(
         'Django>=1.8',
         'django-choices',
         'django-ckeditor',
+        'requests',
+        'lxml',
+        'css_inline',
     ],
     include_package_data=True,
-    scripts=['bin/inject-inline-styles.js'],
+    scripts=[],
     packages=find_packages(exclude=["tests"]),
 
     # tests
