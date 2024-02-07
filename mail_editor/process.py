@@ -1,4 +1,5 @@
 import hashlib
+import itertools
 import os
 from mimetypes import guess_type
 
@@ -13,6 +14,7 @@ def read_image_file(path):
         content = f.read()
     content_type, _encoding = guess_type(path)
     return content, content_type
+
 
 def load_image(url, base_url):
     # TODO support data urls?
@@ -83,11 +85,12 @@ def process_html(html, base_url="", extract_attachments=True, fix_links=True):
             img.set("src", f"cid:{cid}")
 
     if fix_links:
-        for a in root.iterfind(".//a"):
-            url = a.get("href")
+        # TODO figure out how lxml/xpath OR operator works
+        for href_elem in itertools.chain(root.iterfind(".//a"), root.iterfind(".//link")):
+            url = href_elem.get("href")
             if not url:
                 continue
-            a.set("href", make_url_absolute(url, base_url))
+            href_elem.set("href", make_url_absolute(url, base_url))
 
     result = etree.tostring(root, encoding="utf8", pretty_print=False, method="html")
     attachments = [(cid, content, ct) for cid, (content, ct) in image_attachments.items()]

@@ -22,11 +22,20 @@ class ProcessTestCase(TestCase):
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [("MY_CID", b"abc", "image/jpg")])
 
-    def test_process_html_fix_urls(self):
+    def test_process_html_fix_anchor_urls(self):
         html = '<html><body><p><a href="/foo">bar</a></p></body></html>'
         result, objects = process_html(html, base_url="https://example.com")
 
         expected_html = f'<html><body><p><a href="https://example.com/foo">bar</a></p></body></html>'
+
+        self.assertEqual(result.rstrip(), expected_html)
+        self.assertEqual(objects, [])
+
+    def test_process_html_fix_link_urls(self):
+        html = '<html><body><link href="/foo.css"></body></html>'
+        result, objects = process_html(html, base_url="https://example.com")
+
+        expected_html = f'<html><body><link href="https://example.com/foo.css"></body></html>'
 
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [])
