@@ -162,10 +162,10 @@ class MailTemplate(models.Model):
         text_body = txt or strip_tags(body)
 
         email_message = EmailMultiAlternatives(
-            subject=subject, body=body, from_email=django_settings.DEFAULT_FROM_EMAIL,
+            subject=subject, body=text_body, from_email=django_settings.DEFAULT_FROM_EMAIL,
             to=to_addresses, cc=cc_addresses, bcc=bcc_addresses)
-        email_message.content_subtype = "html"
-        email_message.attach_alternative(text_body, 'text/plain')
+        email_message.attach_alternative(body, "text/html")
+        email_message.mixed_subtype = "related"
 
         if attachments:
             for attachment in attachments:
@@ -181,7 +181,7 @@ class MailTemplate(models.Model):
                 subtype = subtype.split("/", maxsplit=1)
                 assert subtype[0] == "image"
                 mime_image = MIMEImage(content, _subtype=subtype[1])
-                mime_image.add_header('Content-ID', cid)
+                mime_image.add_header('Content-ID', f"<{cid}>")
                 email_message.attach(mime_image)
 
         return email_message
