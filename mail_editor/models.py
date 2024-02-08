@@ -157,7 +157,7 @@ class MailTemplate(models.Model):
         """
         subject, body = self.render(context, subj_context)
 
-        body, cid_attachments = process_html(body, base_url=settings.BASE_HOST)
+        body, cid_attachments = process_html(body, settings.BASE_HOST)
 
         text_body = txt or strip_tags(body)
 

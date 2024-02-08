@@ -1,5 +1,7 @@
 import os
 
+DJANGO_PROJECT_DIR = os.path.dirname(__file__)
+
 SECRET_KEY = 'supersekrit'
 
 DATABASES = {
@@ -74,6 +76,14 @@ SILENCED_SYSTEM_CHECKS = [
 ]
 
 
+STATICFILES_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "static")]
+
+# List of finder classes that know how to find static files in
+# various locations.
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static")
 MEDIA_URL = "/media/"
