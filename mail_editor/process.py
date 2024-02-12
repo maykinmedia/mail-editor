@@ -17,6 +17,13 @@ notes: for attaching and inlining STATIC and MEDIA is hardcoded to FileSystemSto
 
 FILE_ROOT = settings.DJANGO_PROJECT_DIR
 
+supported_types = [
+    'image/jpeg',
+    'image/png',
+    # add webp?
+    # NOT SVG!
+]
+
 
 def _html_inline_css(html):
     inliner = css_inline.CSSInliner(
@@ -24,7 +31,6 @@ def _html_inline_css(html):
         keep_style_tags=False,
         keep_link_tags=False,
         extra_css=None,
-        # only load our own static files
         load_remote_stylesheets=True,
         # link urls will have been transformed earlier
         base_url=f"file://{FILE_ROOT}/",
@@ -93,11 +99,13 @@ def process_html(html, base_url, extract_attachments=True, inline_css=True):
             url = elem.get("href")
             if not url:
                 continue
-            # TODO handle potential sneaky relative .. in urls?
-            # url was made absolute earlier
-            # this is needed so css-inliner's can use a file:// base_url
-            url = _find_static_for_inliner(url, static_url)
-            elem.set("href", url)
+            # resolving back to paths is needed so css-inliner's can use a file:// base_url
+            partial_file_path = find_static_path_for_inliner(url, static_url)
+            if partial_file_path:
+                elem.set("href", partial_file_path)
+            else:
+                # remove this element because we don't want to load external stylesheets
+                elem.getparent().remove(elem)
 
     result = etree.tostring(root, encoding="utf8", pretty_print=False, method="html").decode("utf8")
 
@@ -110,7 +118,7 @@ def process_html(html, base_url, extract_attachments=True, inline_css=True):
 
 
 def cid_for_bytes(content):
-    # let's hash content for de-duplication
+    # hash content for de-duplication
     h = hashlib.sha1(usedforsecurity=False)
     h.update(content)
     return h.hexdigest()
@@ -130,24 +138,23 @@ def read_image_file(path):
         return None, ""
 
 
-def _find_static_for_inliner(url, static_url):
+def find_static_path_for_inliner(url, static_url):
     if url.startswith(static_url):
         file_name = url[len(static_url):]
-        file_loc = os.path.join(settings.STATIC_ROOT, file_name)
-        if os.path.exists(file_loc):
-            return os.path.relpath(file_loc, start=FILE_ROOT)
+        file_path = os.path.join(settings.STATIC_ROOT, file_name)
+        if os.path.exists(file_path):
+            return os.path.relpath(file_path, start=FILE_ROOT)
         else:
-            file_loc = finders.find(file_name)
-            if file_loc:
-                return os.path.relpath(file_loc, start=FILE_ROOT)
+            file_path = finders.find(file_name)
+            if file_path:
+                return os.path.relpath(file_path, start=FILE_ROOT)
 
-    return url
+    # we don't allow external links
+    return None
 
 
 def load_image(url, base_url):
-    # TODO support data urls?
-    # TODO use storage backend API instead of manually building paths etc
-
+    # TODO support data urls? steal from mailcleaner
     static_url = make_url_absolute(settings.STATIC_URL, base_url)
     media_url = make_url_absolute(settings.MEDIA_URL, base_url)
     content, content_type = None, ""
@@ -179,7 +186,7 @@ def load_image(url, base_url):
     #     content_type = r.headers["Content-Type"]
     #     content = r.content
 
-    if not content or not content_type.startswith("image/"):
+    if not content or content_type not in supported_types:
         # TODO lets log
         return None, ""
     else:
