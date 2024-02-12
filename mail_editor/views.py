@@ -28,7 +28,7 @@ class TemplateBrowserPreviewView(SingleObjectMixin, View):
         subject_ctx, body_ctx = template.get_preview_contexts()
 
         _subject, body = template.render(body_ctx, subject_ctx)
-        body, _attachments = process_html(body, extract_attachments=False, base_url=settings.MAIL_EDITOR_BASE_HOST)
+        body, _attachments = process_html(body, settings.MAIL_EDITOR_BASE_HOST, extract_attachments=False)
         return HttpResponse(body, content_type="text/html")
 
 

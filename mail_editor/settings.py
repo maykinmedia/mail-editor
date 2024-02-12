@@ -19,35 +19,6 @@ class Settings(object):
         return tmp
 
     @property
-    def PACKAGE_JSON_DIR(self):
-        # Location of folder holding "package.json".
-        tmp = getattr(django_settings, 'PACKAGE_JSON_DIR', None)
-        if tmp:
-            warnings.warn('Setting PACKAGE_JSON_DIR is deprecated, please use MAIL_EDITOR_PACKAGE_JSON_DIR.', DeprecationWarning)
-        else:
-            tmp = getattr(django_settings, 'MAIL_EDITOR_PACKAGE_JSON_DIR', None)
-        return tmp
-
-    @property
-    def ADD_BIN_PATH(self):
-        # Location of folder holding "package.json".
-        tmp = getattr(django_settings, 'ADD_BIN_PATH', False)
-        if tmp:
-            warnings.warn('Setting ADD_BIN_PATH is deprecated, please use MAIL_EDITOR_ADD_BIN_PATH.', DeprecationWarning)
-        else:
-            tmp = getattr(django_settings, 'MAIL_EDITOR_ADD_BIN_PATH', False)
-        return tmp
-
-    @property
-    def BIN_PATH(self):
-        tmp = getattr(django_settings, 'BIN_PATH', None)
-        if tmp:
-            warnings.warn('Setting BIN_PATH is deprecated, please use MAIL_EDITOR_BIN_PATH.', DeprecationWarning)
-        else:
-            tmp = getattr(django_settings, 'MAIL_EDITOR_BIN_PATH', False)
-        return tmp
-
-    @property
     def BASE_CONTEXT(self):
         return getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {})
 

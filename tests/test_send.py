@@ -79,16 +79,18 @@ class EmailSendTestCase(TestCase):
         message = mail.outbox[0]
         self.assertEqual(message.subject, _("Important message for 111"))
 
-        self.assertNotIn('<img src="foo.jpg">', message.body)
-        self.assertIn('<img src="cid:MY_CID">', message.body)
+        message_body, content_type = message.alternatives[0]
+        self.assertEqual(content_type, "text/html")
+        self.assertNotIn('<img src="foo.jpg">',message_body)
+        self.assertIn('<img src="cid:MY_CID',message_body)
 
-        self.assertNotIn('<a href="foo">', message.body)
-        self.assertIn('<a href="http://testserver/foo">', message.body)
+        self.assertNotIn('<a href="foo">',message_body)
+        self.assertIn('<a href="http://testserver/foo"',message_body)
 
         self.assertEqual(len(message.attachments), 1)
         attach = message.attachments[0]
 
-        self.assertEqual(attach["Content-ID"], "MY_CID")
+        self.assertEqual(attach["Content-ID"], "<MY_CID>")
         self.assertEqual(attach["Content-Type"], "image/jpg")
         payload = b64encode(b"abc").decode("utf8") + "\n"
         self.assertEqual(attach.get_payload(), payload)
