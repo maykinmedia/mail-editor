@@ -89,6 +89,12 @@ class MailTemplate(models.Model):
                     _('Mail template with this type and language already exists')
                 )
 
+    def reload_template(self):
+        from .helpers import get_base_template_path, get_body, get_subject
+        self.subject = get_subject(self.template_type)
+        self.body = get_body(self.template_type)
+        self.base_template_path = get_base_template_path(self.template_type)
+
     def get_base_context(self):
         base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {}).copy()
         dynamic = settings.DYNAMIC_CONTEXT
