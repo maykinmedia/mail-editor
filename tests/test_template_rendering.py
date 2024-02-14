@@ -1,7 +1,7 @@
 from tempfile import TemporaryFile
 
 from django.test import TestCase, override_settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from mail_editor.helpers import find_template
 

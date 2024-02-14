@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from mail_editor.helpers import find_template
 

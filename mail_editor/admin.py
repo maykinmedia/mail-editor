@@ -1,9 +1,9 @@
 from django.conf import settings as django_settings
-from django.conf.urls import url
+from django.urls import re_path
 from django.contrib import admin, messages
 from django.urls import path, reverse
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .forms import MailTemplateForm
 from .models import MailTemplate
@@ -80,13 +80,13 @@ class MailTemplateAdmin(admin.ModelAdmin):
     def get_urls(self):
         # reminder: when using admin templates also add self.admin_site.each_context(request)
         return [
-            url(r'^variables/(?P<template_type>[-\w]+)/$',
+            re_path(r'^variables/(?P<template_type>[-\w]+)/$',
                 self.admin_site.admin_view(TemplateVariableView.as_view()),
                 name='mailtemplate_variables'),
-            url(r'^preview/(?P<pk>[0-9]+)/$',
+            re_path(r'^preview/(?P<pk>[0-9]+)/$',
                 self.admin_site.admin_view(TemplateBrowserPreviewView.as_view()),
                 name='mailtemplate_render'),
-            url(r'^email/(?P<pk>[0-9]+)/$',
+            re_path(r'^email/(?P<pk>[0-9]+)/$',
                 self.admin_site.admin_view(TemplateEmailPreviewFormView.as_view()),
                 name='mailtemplate_preview'),
         ] + super().get_urls()

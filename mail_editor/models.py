@@ -13,7 +13,7 @@ from django.template import Context, Template
 from django.utils.html import strip_tags
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .process import process_html
 from .settings import get_config, settings
