@@ -1,5 +1,7 @@
 import os
 
+DJANGO_PROJECT_DIR = os.path.dirname(__file__)
+
 SECRET_KEY = 'supersekrit'
 
 DATABASES = {
@@ -67,3 +69,22 @@ MAIL_EDITOR_CONF = {
     }
 }
 
+MAIL_EDITOR_BASE_HOST = "http://testserver"
+
+SILENCED_SYSTEM_CHECKS = [
+    "models.W042",  # AutoField warning not relevant for tests
+]
+
+
+STATICFILES_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "static"), os.path.join(DJANGO_PROJECT_DIR, "static_alternative")]
+
+# List of finder classes that know how to find static files in
+# various locations.
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(os.path.dirname(__file__), "media")

@@ -1,8 +1,7 @@
 import copy
 import logging
 import os
-import subprocess
-from tempfile import NamedTemporaryFile
+from email.mime.image import MIMEImage
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
@@ -10,15 +9,15 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models import Q
-from django.template import Context, Template, loader
+from django.template import Context, Template
 from django.utils.html import strip_tags
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from .process import process_html
 from .settings import get_config, settings
 from .mail_template import validate_template
-from .node import locate_package_json
 from .utils import variable_help_text
 
 logger = logging.getLogger(__name__)
@@ -90,6 +89,12 @@ class MailTemplate(models.Model):
                     _('Mail template with this type and language already exists')
                 )
 
+    def reload_template(self):
+        from .helpers import get_base_template_path, get_body, get_subject
+        self.subject = get_subject(self.template_type)
+        self.body = get_body(self.template_type)
+        self.base_template_path = get_base_template_path(self.template_type)
+
     def get_base_context(self):
         base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {}).copy()
         dynamic = settings.DYNAMIC_CONTEXT
@@ -144,26 +149,6 @@ class MailTemplate(models.Model):
         body_context.update({'content': partial_body})
         body = template_function(self.base_template_path, body_context)
 
-        # TODO: I made the package.json stuff optional. Maybe it should be removed completely since it adds 3 settings,
-        # seems for a limited use-case, and it uses subproces...
-        package_json = locate_package_json()
-        if package_json:
-            env = os.environ.copy()
-            if settings.ADD_BIN_PATH:
-                env['PATH'] = '{}:{}'.format(env['PATH'], settings.BIN_PATH)
-
-            with NamedTemporaryFile() as temp_file:
-                temp_file.write(bytes(body, 'UTF-8'))
-                process = subprocess.Popen(
-                    "inject-inline-styles.js {}".format(temp_file.name), shell=True,
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    env=env, universal_newlines=True, cwd=os.path.dirname(package_json)
-                )
-
-                body, err = process.communicate()
-                if err:
-                    raise Exception(err)
-
         return tpl_subject.render(subj_ctx), mark_safe(body)
 
     def build_message(self, to_addresses, context, subj_context=None, txt=False, attachments=None,
@@ -177,12 +162,16 @@ class MailTemplate(models.Model):
                             `(<filename>, <content>, [mime type])`
         """
         subject, body = self.render(context, subj_context)
+
+        body, cid_attachments = process_html(body, settings.BASE_HOST)
+
         text_body = txt or strip_tags(body)
 
         email_message = EmailMultiAlternatives(
             subject=subject, body=text_body, from_email=django_settings.DEFAULT_FROM_EMAIL,
             to=to_addresses, cc=cc_addresses, bcc=bcc_addresses)
-        email_message.attach_alternative(body, 'text/html')
+        email_message.attach_alternative(body, "text/html")
+        email_message.mixed_subtype = "related"
 
         if attachments:
             for attachment in attachments:
@@ -192,6 +181,14 @@ class MailTemplate(models.Model):
                     email_message.attach_file(*attachment)
                 else:
                     email_message.attach(*attachment)
+
+        if cid_attachments:
+            for cid, content, subtype in cid_attachments:
+                subtype = subtype.split("/", maxsplit=1)
+                assert subtype[0] == "image"
+                mime_image = MIMEImage(content, _subtype=subtype[1])
+                mime_image.add_header('Content-ID', f"<{cid}>")
+                email_message.attach(mime_image)
 
         return email_message
 

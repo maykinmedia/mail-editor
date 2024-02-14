@@ -1,6 +1,6 @@
 from django.conf import settings as django_settings
 from django.conf.urls import url
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
@@ -36,6 +36,9 @@ class MailTemplateAdmin(admin.ModelAdmin):
         'template_type',
         'subject',
     )
+    actions = [
+        "reload_templates",
+    ]
 
     form = MailTemplateForm
 
@@ -113,3 +116,11 @@ class MailTemplateAdmin(admin.ModelAdmin):
         return obj.get_variable_help_text()
 
     get_variable_help_text.short_description = _('Subject variables')
+
+    def reload_templates(self, request, queryset):
+        for template in queryset:
+            template.reload_template()
+            template.save()
+            self.message_user(request, _("Template '{name}' is reset").format(name=template.template_type), level=messages.SUCCESS)
+
+    reload_templates.short_description = _('Reset templates (WARNING: overwrites current content)')
