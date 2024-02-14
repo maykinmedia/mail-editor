@@ -90,6 +90,9 @@ class ProcessHelpersTestCase(TestCase):
             ("", "http://example.com/foo", "http://example.com/foo"),
             ("", "foo", "/foo"),
             ("", "", "/"),
+            # extras
+            ("http://example.com", "tel:123456789", "tel:123456789"),
+            ("http://example.com", "mailto:foo@example.com", "mailto:foo@example.com"),
         ]
         for i, (base, url, expected) in enumerate(tests):
             with self.subTest((i, base, url)):

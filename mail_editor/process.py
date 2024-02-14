@@ -2,6 +2,7 @@ import hashlib
 import itertools
 import os
 from mimetypes import guess_type
+from urllib.parse import urlparse
 
 import css_inline
 import requests
@@ -199,6 +200,14 @@ def make_url_absolute(url, base_url=""):
     """
     # TODO surely there is a standard and proper way to do this?
     # TODO we're using the path part as file path so we should handle sneaky attempts to use relative ".."
+    try:
+        parse = urlparse(url)
+        # allow tel:, mailto: links
+        if parse.scheme and parse.scheme not in ("http", "https"):
+            return url
+    except ValueError:
+        pass
+
     base_url = base_url.rstrip("/")
     if not url:
         if base_url:
