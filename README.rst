@@ -31,10 +31,9 @@ and edit the actual templates in the front-end. Templates are validated on
 syntax *and* required/optional content.
 
 This project also aims to solve the HTML email template problems that you can have when
-supporting all email clients. For this we will inject the css as inline styles.
-We do this using a node project calles inline-css. This was also used by
+supporting all email clients. This was also used by
 `foundation for email`_. Foundation for email is a good way to build your initial email
-template on development mode. It will generate a separete html file and css file.
+template on development mode. It will generate a separate html file and css file.
 
 For e-mail sending and logging, we recommend using a solution such as `Django Yubin`_.
 
@@ -51,17 +50,15 @@ Warning
 
 This project is currently in development and not stable.
 
-Used NPM packages
------------------
 
-This package uses NPM. This is to inject the inline styles and minify the HTML.
-This packages are needed to make the email complient for all the email clients.
+Installation
+------------
+
+Install with pip:
 
 .. code:: shell
 
-    npm install --save inline-css
-    npm install --save html-minifier
-
+    pip install mail_editor
 
 Add *'mail_editor'* to the installed apps:
 
@@ -159,11 +156,6 @@ These settings are usefull to add:
 
 .. code:: python
 
-    # These settings are for inlining the css.
-    MAIL_EDITOR_PACKAGE_JSON_DIR = '/path/to/the/package.json'
-    MAIL_EDITOR_ADD_BIN_PATH = True or False
-    MAIL_EDITOR_BIN_PATH = 'path/to/virtualenv/bin'
-
     # These settings make sure that CKEDITOR does not strip any html tags. like <center></center>
     CKEDITOR_CONFIGS = {
         'mail_editor': {
@@ -196,18 +188,6 @@ Install with pip:
 
     pip install mail_editor
 
-
-Add *'mail_editor'* to the installed apps:
-
-.. code:: python
-
-    # settings.py
-
-    INSTALLED_APPS = [
-        ...
-        'mail_editor',
-        ...
-    ]
 
 .. _Django Yubin: https://github.com/APSL/django-yubin
 .. _Sergei Maertens: https://github.com/sergei-maertens

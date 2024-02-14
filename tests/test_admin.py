@@ -47,6 +47,26 @@ class AdminPreviewTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_changelist_view__reset_template_action(self):
+        template = find_template("test_template")
+        template.body = "something else"
+        template.subject = "something else"
+        template.save()
+
+        url = reverse('admin:{}_{}_changelist'.format(template._meta.app_label, template._meta.model_name))
+
+        self.client.force_login(self.super_user)
+        data = {
+            'action': 'reload_templates',
+            '_selected_action': [str(template.pk)],
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+
+        template.refresh_from_db()
+        self.assertIn(str(_("Test mail sent from testcase with {{ id }}")), template.body, )
+        self.assertEqual(template.subject, _("Important message for {{ id }}"))
+
     def test_change_view(self):
         template = find_template("test_template")
 

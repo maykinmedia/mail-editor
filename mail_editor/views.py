@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.contrib import messages
 from django.http import HttpResponse
@@ -9,6 +10,7 @@ from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import FormMixin, FormView
 
 from .models import MailTemplate
+from .process import process_html
 from .utils import variable_help_text
 
 
@@ -25,7 +27,8 @@ class TemplateBrowserPreviewView(SingleObjectMixin, View):
         template = self.get_object()
         subject_ctx, body_ctx = template.get_preview_contexts()
 
-        subject, body = template.render(body_ctx, subject_ctx)
+        _subject, body = template.render(body_ctx, subject_ctx)
+        body, _attachments = process_html(body, settings.MAIL_EDITOR_BASE_HOST, extract_attachments=False)
         return HttpResponse(body, content_type="text/html")
 
 
@@ -63,8 +66,7 @@ class TemplateEmailPreviewFormView(FormView, DetailView):
         })
 
         subject_ctx, body_ctx = self.object.get_preview_contexts()
-        subject, body = self.object.render(body_ctx, subject_ctx)
-
+        subject, _body = self.object.render(body_ctx, subject_ctx)
         # our own context data
         ctx.update({
             "subject": subject,
