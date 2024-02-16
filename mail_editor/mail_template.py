@@ -20,7 +20,7 @@ class MailTemplateValidator(object):
         self.config = template.config
 
     def validate(self, field):
-        if self.config is None:  # can't validate
+        if not self.config:  # can't validate
             return
         template = self.check_syntax_errors(getattr(self.template, field))
         self.check_variables(template, field)

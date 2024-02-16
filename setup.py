@@ -34,6 +34,7 @@ setup(
         'pytest-pep8',
         'pytest-pylint',
         'pytest-pythonpath',
+        'django-webtest',
     ],
 
     # metadata

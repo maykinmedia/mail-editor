@@ -63,7 +63,7 @@ class MailTemplate(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
-        self.config = get_config()[self.template_type]
+        self.config = get_config().get(self.template_type) or dict()
 
     def __str__(self):
         if self.internal_name:
@@ -76,7 +76,7 @@ class MailTemplate(models.Model):
     def clean(self):
         validate_template(self)
 
-        if getattr(django_settings, 'MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES', True):
+        if settings.UNIQUE_LANGUAGE_TEMPLATES:
             queryset = (
                 self.__class__.objects.filter(
                     language=self.language, template_type=self.template_type
@@ -96,7 +96,7 @@ class MailTemplate(models.Model):
         self.base_template_path = get_base_template_path(self.template_type)
 
     def get_base_context(self):
-        base_context = getattr(django_settings, 'MAIL_EDITOR_BASE_CONTEXT', {}).copy()
+        base_context = copy.deepcopy(settings.BASE_CONTEXT)
         dynamic = settings.DYNAMIC_CONTEXT
         if dynamic:
             base_context.update(dynamic())
