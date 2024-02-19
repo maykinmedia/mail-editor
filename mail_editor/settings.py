@@ -24,6 +24,9 @@ class Settings(object):
 
     @property
     def DYNAMIC_CONTEXT(self):
+        """
+        callable to return optional extra context
+        """
         dynamic = getattr(django_settings, 'MAIL_EDITOR_DYNAMIC_CONTEXT', None)
         if dynamic:
             return import_string(dynamic)
@@ -52,7 +55,7 @@ settings = Settings()
 def get_choices():
     choices = []
     for key, values in settings.TEMPLATES.items():
-        choices += [(key, values.get('name'))]
+        choices += [(key, values.get('name', key.title()))]
     return choices
 
 

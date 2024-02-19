@@ -1,11 +1,10 @@
 import logging
 
-from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.template import loader
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-
+from .settings import settings
 from .models import MailTemplate
 
 try:
@@ -40,7 +39,7 @@ def find_template(template_name, language=None):
 
 
 def get_subject(template_name):
-    config = settings.MAIL_EDITOR_CONF
+    config = settings.TEMPLATES
 
     template_config = config.get(template_name)
     if template_config:
@@ -52,7 +51,7 @@ def get_subject(template_name):
 
 
 def get_body(template_name):
-    config = settings.MAIL_EDITOR_CONF
+    config = settings.TEMPLATES
 
     template_config = config.get(template_name)
     default = _('Your content here...')
@@ -67,7 +66,7 @@ def get_body(template_name):
 
 
 def get_base_template_path(template_name):
-    config = settings.MAIL_EDITOR_CONF
+    config = settings.TEMPLATES
 
     template_config = config.get(template_name)
     if template_config:

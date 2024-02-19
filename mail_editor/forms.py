@@ -15,11 +15,13 @@ class MailTemplateForm(forms.ModelForm):
         fields = ('template_type', 'remarks', 'subject', 'body')
         widgets = {
             'body': CKEditorWidget(config_name='mail_editor'),
-            'template_type': forms.Select(choices=get_choices())
+            'template_type': forms.Select(choices=[])
         }
 
     def __init__(self, *args, **kwargs):
         super(MailTemplateForm, self).__init__(*args, **kwargs)
+
+        self.fields["template_type"].widget.choices = get_choices()
 
         template = loader.get_template('mail/_outer_table.html')
         # TODO: This only works when sites-framework is installed.

@@ -74,7 +74,7 @@ class MailTemplateAdmin(admin.ModelAdmin):
     get_preview_link.short_description = _("Preview")
 
     def get_preview_url(self, obj=None):
-        if obj:
+        if obj and obj.pk:
             return reverse("admin:mailtemplate_preview", kwargs={"pk": obj.id})
 
     def get_urls(self):

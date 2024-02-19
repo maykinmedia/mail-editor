@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 from django.contrib import admin
 from django.contrib import messages
 from django.http import HttpResponse
@@ -7,11 +6,12 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
-from django.views.generic.edit import FormMixin, FormView
+from django.views.generic.edit import FormView
 
 from .models import MailTemplate
 from .process import process_html
 from .utils import variable_help_text
+from .settings import settings
 
 
 class TemplateVariableView(View):
@@ -28,7 +28,7 @@ class TemplateBrowserPreviewView(SingleObjectMixin, View):
         subject_ctx, body_ctx = template.get_preview_contexts()
 
         _subject, body = template.render(body_ctx, subject_ctx)
-        body, _attachments = process_html(body, settings.MAIL_EDITOR_BASE_HOST, extract_attachments=False)
+        body, _attachments = process_html(body, settings.BASE_HOST, extract_attachments=False)
         return HttpResponse(body, content_type="text/html")
 
 
