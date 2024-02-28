@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test import override_settings
@@ -8,12 +10,6 @@ from django_webtest import WebTest
 
 from mail_editor.helpers import find_template
 from mail_editor.models import MailTemplate
-
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
-
 
 CONFIG = {
     "test_template": {

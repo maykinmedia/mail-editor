@@ -1,15 +1,10 @@
 from tempfile import TemporaryFile
+from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 from django.utils.translation import gettext_lazy as _
 
 from mail_editor.helpers import find_template
-
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
-
 
 CONFIG = {
     "test_template": {

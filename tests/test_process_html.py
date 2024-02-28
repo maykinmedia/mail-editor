@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase
@@ -10,11 +11,6 @@ from mail_editor.process import (
     process_html,
     read_image_file,
 )
-
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
 
 
 class ProcessTestCase(TestCase):
