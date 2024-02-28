@@ -28,7 +28,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "django>=4.2",
+    "django>=3.2",
     "django-choices",
     "django-ckeditor",
     "requests",
@@ -50,6 +50,8 @@ tests = [
     "isort",
     "black",
     "flake8",
+    "autoflake",
+    "django_webtest",
 ]
 coverage = [
     "pytest-cov",
@@ -76,7 +78,7 @@ sections=["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-DJANGO_SETTINGS_MODULE = "testapp.settings"
+DJANGO_SETTINGS_MODULE = "tests.settings"
 
 [tool.bumpversion]
 current_version = "0.3.5"
