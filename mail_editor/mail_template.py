@@ -2,8 +2,6 @@
 Defines helpers for validating e-mail templates
 """
 
-from __future__ import absolute_import, unicode_literals
-
 from django.core.exceptions import ValidationError
 from django.template import (  # TODO: should be able to specify engine
     Context,
@@ -63,7 +61,8 @@ class MailTemplateValidator(object):
     def check_variables(self, template, field):
         variables_seen = set()
         required_vars = {var.name for var in self.config[field] if var.required}
-        optional_vars = {var.name for var in self.config[field] if not var.required}
+        # TODO do we need to check optional_vars? the following line was here but never used
+        # optional_vars = {var.name for var in self.config[field] if not var.required}
         for node in template.nodelist.get_nodes_by_type(VariableNode):
             var_name = node.filter_expression.var.var
             variables_seen.add(var_name)
@@ -80,8 +79,8 @@ class MailTemplateValidator(object):
                     params={field: message}, message=message, code=self.code
                 )
 
-    def _is_attribute(self, vars, known_vars):
-        for var in vars:
+    def _is_attribute(self, var_names, known_vars):
+        for var in var_names:
             if any(var.startswith("{}.".format(known_var)) for known_var in known_vars):
                 return True
 
