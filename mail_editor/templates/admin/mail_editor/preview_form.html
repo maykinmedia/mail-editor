@@ -1,18 +1,5 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/change_form.html" %}
 {% load i18n admin_urls static admin_modify %}
-
-{# NOTE: this started as a copy of admin/change_form.html but is stripped and modified. #}
-
-{% block extrahead %}{{ block.super }}
-<script src="{% url 'admin:jsi18n' %}"></script>
-{{ media }}
-{% endblock %}
-
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
-
-{% block coltype %}colM{% endblock %}
-
-{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
 
 {% if not is_popup %}
 {% block breadcrumbs %}
@@ -26,8 +13,6 @@
 {% endif %}
 
 {% block content %}<div id="content-main">
-{% block object-tools %}
-{% endblock %}
 <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}
 <div>
 {% if errors %}
@@ -60,7 +45,7 @@
 <div>
     <style>
         #id_recipient {
-           width: 300px; 
+           width: 300px;
         }
         .mailtemplate__preview {
             max-width: 800px;
