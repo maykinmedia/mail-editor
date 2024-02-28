@@ -210,11 +210,11 @@ class MailTemplate(models.Model):
                     email_message.attach(*attachment)
 
         if cid_attachments:
-            for cid, content, subtype in cid_attachments:
-                subtype = subtype.split("/", maxsplit=1)
+            for att in cid_attachments:
+                subtype = att.content_type.split("/", maxsplit=1)
                 assert subtype[0] == "image"
-                mime_image = MIMEImage(content, _subtype=subtype[1])
-                mime_image.add_header("Content-ID", f"<{cid}>")
+                mime_image = MIMEImage(att.content, _subtype=subtype[1])
+                mime_image.add_header("Content-ID", f"<{att.cid}>")
                 email_message.attach(mime_image)
 
         return email_message

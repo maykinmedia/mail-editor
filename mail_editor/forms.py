@@ -29,4 +29,5 @@ class MailTemplateForm(forms.ModelForm):
             domain = current_site.domain
         except Exception as e:
             domain = ""
+
         self.fields["body"].initial = template.render({"domain": domain}, None)

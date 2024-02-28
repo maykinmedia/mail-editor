@@ -1,6 +1,7 @@
 import hashlib
 import os
 from mimetypes import guess_type
+from typing import NamedTuple, Optional
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -23,7 +24,7 @@ supported_types = [
 ]
 
 
-def _html_inline_css(html):
+def _html_inline_css(html: str) -> str:
     inliner = css_inline.CSSInliner(
         inline_style_tags=True,
         keep_style_tags=False,
@@ -45,7 +46,18 @@ def _html_inline_css(html):
             return html
 
 
-def process_html(html, base_url, extract_attachments=True, inline_css=True):
+class CIDAttachment(NamedTuple):
+    cid: str
+    content: bytes
+    content_type: str
+
+
+def process_html(
+    html: str,
+    base_url: str,
+    extract_attachments: bool = True,
+    inline_css: bool = True,
+) -> tuple[str, list[CIDAttachment]]:
     # TODO handle errors in cosmetics and make sure we always produce something
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
@@ -113,20 +125,21 @@ def process_html(html, base_url, extract_attachments=True, inline_css=True):
         result = _html_inline_css(result)
 
     attachments = [
-        (cid, content, ct) for cid, (content, ct) in image_attachments.items()
+        CIDAttachment(cid, content, ct)
+        for cid, (content, ct) in image_attachments.items()
     ]
 
     return result, attachments
 
 
-def cid_for_bytes(content):
+def cid_for_bytes(content: bytes) -> str:
     # hash content for de-duplication
     h = hashlib.sha1(usedforsecurity=False)
     h.update(content)
     return h.hexdigest()
 
 
-def read_image_file(path):
+def read_image_file(path: str) -> tuple[Optional[bytes], str]:
     try:
         with open(path, "rb") as f:
             content = f.read()
@@ -140,22 +153,22 @@ def read_image_file(path):
         return None, ""
 
 
-def find_static_path_for_inliner(url, static_url):
+def find_static_path_for_inliner(url: str, static_url: str) -> Optional[str]:
     if url.startswith(static_url):
         file_name = url[len(static_url) :]
         file_path = os.path.join(settings.STATIC_ROOT, file_name)
         if os.path.exists(file_path):
-            return os.path.relpath(file_path, start=FILE_ROOT)
+            return str(os.path.relpath(file_path, start=FILE_ROOT))
         else:
             file_path = finders.find(file_name)
             if file_path:
-                return os.path.relpath(file_path, start=FILE_ROOT)
+                return str(os.path.relpath(file_path, start=FILE_ROOT))
 
     # we don't allow external links
     return None
 
 
-def load_image(url, base_url):
+def load_image(url: str, base_url: str) -> tuple[Optional[bytes], str]:
     # TODO support data urls? steal from mailcleaner
     static_url = make_url_absolute(settings.STATIC_URL, base_url)
     media_url = make_url_absolute(settings.MEDIA_URL, base_url)
@@ -195,7 +208,7 @@ def load_image(url, base_url):
         return content, content_type
 
 
-def make_url_absolute(url, base_url=""):
+def make_url_absolute(url: str, base_url: str = "") -> str:
     """
     base_url: https://domain
     """

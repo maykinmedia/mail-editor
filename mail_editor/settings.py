@@ -61,7 +61,7 @@ class Settings(object):
 settings = Settings()
 
 
-def get_choices():
+def get_choices() -> list[tuple[str, str]]:
     choices = []
     for key, values in settings.TEMPLATES.items():
         choices += [(key, values.get("name", key.title()))]
