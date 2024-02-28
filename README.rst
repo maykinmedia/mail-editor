@@ -1,18 +1,9 @@
 MailEditor
 ==========
 
-.. image:: https://travis-ci.org/maykinmedia/mail-editor.svg?branch=master
-    :target: https://travis-ci.org/maykinmedia/mail-editor
-    :alt: Travis
 .. image:: https://codecov.io/gh/maykinmedia/mail-editor/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/maykinmedia/mail-editor
     :alt: Coverage
-.. image:: https://lintly.com/gh/maykinmedia/mail-editor/badge.svg
-    :target: https://lintly.com/gh/maykinmedia/mail-editor/
-    :alt: Lintly
-.. image:: https://bettercodehub.com/edge/badge/maykinmedia/mail-editor?branch=master
-    :target: https://bettercodehub.com/results/maykinmedia/mail-editor
-    :alt: BCH compliance
 .. image:: https://codeclimate.com/github/codeclimate/codeclimate/badges/gpa.svg
    :target: https://codeclimate.com/github/codeclimate/codeclimate
    :alt: Code Climate
@@ -39,10 +30,10 @@ For e-mail sending and logging, we recommend using a solution such as `Django Yu
 
 This is only tested on a postgres database.
 
-Supported (read: Travis tested) are:
+Supported are:
 
-- python 2.7, 3.4, 3.5
-- Django 1.8, 1.9, 1.10, 1.11
+- python 3.10, 3.11, 3.12
+- Django 3.2, 4.2
 - PostgreSQL
 
 Warning
@@ -120,8 +111,8 @@ The following settings are an example:
 
     MAIL_EDITOR_CONF = {
         'activation': {
-            'name': ugettext_noop('Activation Email'),
-            'description': ugettext_noop('This email is used when people need to activate their account.'),
+            'name': gettext_noop('Activation Email'),
+            'description': gettext_noop('This email is used when people need to activate their account.'),
             'subject_default': 'Activeer uw account voor {{site_name}}',
             'body_default': """
                 <h1>Hallo {{ name }},</h1>
@@ -132,21 +123,21 @@ The following settings are an example:
             """,
             'subject': [{
                 'name': 'site_name',
-                'description': ugettext_noop('This is the name of the site. From the sites'),
-                'example': ugettext_noop('Example site'),
+                'description': gettext_noop('This is the name of the site. From the sites'),
+                'example': gettext_noop('Example site'),
             }],
             'body': [{
                 'name': 'name',
-                'description': ugettext_noop('This is the name of the user'),
-                'example': ugettext_noop('Jane Doe'),
+                'description': gettext_noop('This is the name of the user'),
+                'example': gettext_noop('Jane Doe'),
             }, {
                 'name': 'site_name',
-                'description': ugettext_noop('This is the name of the site. From the sites'),
-                'example': ugettext_noop('Example site'),
+                'description': gettext_noop('This is the name of the site. From the sites'),
+                'example': gettext_noop('Example site'),
             }, {
                 'name': 'activation_link',
-                'description': ugettext_noop('This is the link to activate their account.'),
-                'example': ugettext_noop('/'),
+                'description': gettext_noop('This is the link to activate their account.'),
+                'example': gettext_noop('/'),
             }]
         },
         ...
