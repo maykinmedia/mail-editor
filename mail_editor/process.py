@@ -1,16 +1,13 @@
 import hashlib
-import itertools
 import os
 from mimetypes import guess_type
 from urllib.parse import urlparse
 
-import css_inline
-import requests
-from django.contrib.staticfiles import finders
-from lxml import etree
-
 from django.conf import settings
+from django.contrib.staticfiles import finders
 
+import css_inline
+from lxml import etree
 
 """
 notes: for attaching and inlining STATIC and MEDIA is hardcoded to FileSystemStorage
@@ -19,8 +16,8 @@ notes: for attaching and inlining STATIC and MEDIA is hardcoded to FileSystemSto
 FILE_ROOT = settings.DJANGO_PROJECT_DIR
 
 supported_types = [
-    'image/jpeg',
-    'image/png',
+    "image/jpeg",
+    "image/png",
     # add webp?
     # NOT SVG!
 ]
@@ -108,12 +105,16 @@ def process_html(html, base_url, extract_attachments=True, inline_css=True):
                 # remove this element because we don't want to load external stylesheets
                 elem.getparent().remove(elem)
 
-    result = etree.tostring(root, encoding="utf8", pretty_print=False, method="html").decode("utf8")
+    result = etree.tostring(
+        root, encoding="utf8", pretty_print=False, method="html"
+    ).decode("utf8")
 
     if inline_css:
         result = _html_inline_css(result)
 
-    attachments = [(cid, content, ct) for cid, (content, ct) in image_attachments.items()]
+    attachments = [
+        (cid, content, ct) for cid, (content, ct) in image_attachments.items()
+    ]
 
     return result, attachments
 
@@ -141,7 +142,7 @@ def read_image_file(path):
 
 def find_static_path_for_inliner(url, static_url):
     if url.startswith(static_url):
-        file_name = url[len(static_url):]
+        file_name = url[len(static_url) :]
         file_path = os.path.join(settings.STATIC_ROOT, file_name)
         if os.path.exists(file_path):
             return os.path.relpath(file_path, start=FILE_ROOT)
@@ -163,7 +164,7 @@ def load_image(url, base_url):
     url = make_url_absolute(url, base_url)
 
     if url.startswith(static_url):
-        file_name = url[len(static_url):]
+        file_name = url[len(static_url) :]
         file_path = os.path.join(settings.STATIC_ROOT, file_name)
 
         content, content_type = read_image_file(file_path)
@@ -174,7 +175,7 @@ def load_image(url, base_url):
                 content, content_type = read_image_file(file_path)
 
     elif url.startswith(media_url):
-        file_name = url[len(media_url):]
+        file_name = url[len(media_url) :]
         file_path = os.path.join(settings.MEDIA_ROOT, file_name)
 
         content, content_type = read_image_file(file_path)

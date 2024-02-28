@@ -8,11 +8,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mail_editor', '0002_auto_20170227_1438'),
+        ("mail_editor", "0002_auto_20170227_1438"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Mail',
+            name="Mail",
         ),
     ]

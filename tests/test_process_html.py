@@ -3,8 +3,13 @@ import os
 from django.conf import settings
 from django.test import TestCase
 
-from mail_editor.process import cid_for_bytes, find_static_path_for_inliner, load_image, make_url_absolute, \
-    process_html, read_image_file
+from mail_editor.process import (
+    cid_for_bytes,
+    load_image,
+    make_url_absolute,
+    process_html,
+    read_image_file,
+)
 
 try:
     from unittest.mock import patch
@@ -21,7 +26,9 @@ class ProcessTestCase(TestCase):
         html = '<html><body><p><img src="foo.jpg"></p></body></html>'
         result, objects = process_html(html, "https://example.com")
 
-        expected_html = '<html><head></head><body><p><img src="cid:MY_CID"></p></body></html>'
+        expected_html = (
+            '<html><head></head><body><p><img src="cid:MY_CID"></p></body></html>'
+        )
 
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [("MY_CID", b"abc", "image/jpg")])
@@ -46,10 +53,12 @@ class ProcessTestCase(TestCase):
         self.assertEqual(objects, [])
 
     def test_inlines_css_from_style(self):
-        html = '<html><head><style>h1 { color: red; }</style/></head><body><h1>foo</h1></body></html>'
+        html = "<html><head><style>h1 { color: red; }</style/></head><body><h1>foo</h1></body></html>"
         result, objects = process_html(html, "https://example.com")
 
-        expected_html = '<html><head></head><body><h1 style="color: red;">foo</h1></body></html>'
+        expected_html = (
+            '<html><head></head><body><h1 style="color: red;">foo</h1></body></html>'
+        )
 
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [])
@@ -60,7 +69,9 @@ class ProcessTestCase(TestCase):
         html = '<html><head><link href="/static/css/style.css" rel="stylesheet" type="text/css"/></head><body><h1>foo</h1></body></html>'
         result, objects = process_html(html, "https://example.com")
 
-        expected_html = '<html><head></head><body><h1 style="color: red;">foo</h1></body></html>'
+        expected_html = (
+            '<html><head></head><body><h1 style="color: red;">foo</h1></body></html>'
+        )
 
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [])
@@ -69,7 +80,7 @@ class ProcessTestCase(TestCase):
         html = '<html><head><link href="https://external.xyz/static/css/style.css" rel="stylesheet" type="text/css"/></head><body><h1>foo</h1></body></html>'
         result, objects = process_html(html, "https://example.com")
 
-        expected_html = '<html><head></head><body><h1>foo</h1></body></html>'
+        expected_html = "<html><head></head><body><h1>foo</h1></body></html>"
 
         self.assertEqual(result.rstrip(), expected_html)
         self.assertEqual(objects, [])
@@ -104,7 +115,7 @@ class ProcessHelpersTestCase(TestCase):
 
     def test_read_image_file(self):
         with self.subTest("exists"):
-            path = os.path.join(settings.STATIC_ROOT, 'logo.png')
+            path = os.path.join(settings.STATIC_ROOT, "logo.png")
             with open(path, "rb") as f:
                 expected = f.read()
 
@@ -113,7 +124,7 @@ class ProcessHelpersTestCase(TestCase):
             self.assertEqual(content_type, "image/png")
 
         with self.subTest("not exists"):
-            path = os.path.join(settings.STATIC_ROOT, 'not_exists.png')
+            path = os.path.join(settings.STATIC_ROOT, "not_exists.png")
 
             actual, content_type = read_image_file(path)
             self.assertEqual(actual, None)
@@ -123,15 +134,15 @@ class ProcessHelpersTestCase(TestCase):
         # TODO properly test both collected STATIC_ROOT and the development staticfiles.finders fallback
 
         with self.subTest("static & png"):
-            with open(os.path.join(settings.STATIC_ROOT, 'logo.png'), "rb") as f:
+            with open(os.path.join(settings.STATIC_ROOT, "logo.png"), "rb") as f:
                 expected = f.read()
 
-            actual, content_type = load_image("/static/logo.png","http://testserver")
+            actual, content_type = load_image("/static/logo.png", "http://testserver")
             self.assertEqual(actual, expected)
             self.assertEqual(content_type, "image/png")
 
         with self.subTest("media & jpg"):
-            with open(os.path.join(settings.MEDIA_ROOT, 'logo.jpg'), "rb") as f:
+            with open(os.path.join(settings.MEDIA_ROOT, "logo.jpg"), "rb") as f:
                 expected = f.read()
 
             actual, content_type = load_image("/media/logo.jpg", "http://testserver")
@@ -139,7 +150,9 @@ class ProcessHelpersTestCase(TestCase):
             self.assertEqual(content_type, "image/jpeg")
 
         with self.subTest("not exists"):
-            actual, content_type = load_image("/static/not_exists.png", "http://testserver")
+            actual, content_type = load_image(
+                "/static/not_exists.png", "http://testserver"
+            )
             self.assertEqual(actual, None)
             self.assertEqual(content_type, "")
 

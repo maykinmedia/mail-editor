@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 
 from mail_editor.helpers import find_template
 
-
 try:
     from unittest.mock import patch
 except ImportError:
@@ -25,9 +24,7 @@ CONFIG = {
 
 
 def dynamic_context():
-    return {
-        "id": "DYNAMIC"
-    }
+    return {"id": "DYNAMIC"}
 
 
 class TemplateRenderTestCase(TestCase):
@@ -47,9 +44,7 @@ class TemplateRenderTestCase(TestCase):
 
         template = find_template("test_template")
 
-        subject, body = template.render(
-            body_context, subj_context=subject_context
-        )
+        subject, body = template.render(body_context, subj_context=subject_context)
 
         self.assertEquals(subject, "Important message for 111")
         self.assertIn("Test mail sent from testcase with 111", body)
@@ -61,24 +56,22 @@ class TemplateRenderTestCase(TestCase):
 
         template = find_template("test_template")
 
-        subject, body = template.render(
-            body_context, subj_context=subject_context
-        )
+        subject, body = template.render(body_context, subj_context=subject_context)
 
         self.assertEquals(subject, "Important message for BASE")
         self.assertIn("Test mail sent from testcase with BASE", body)
 
-    @override_settings(MAIL_EDITOR_CONF=CONFIG,
-                       MAIL_EDITOR_DYNAMIC_CONTEXT="tests.test_template_rendering.dynamic_context")
+    @override_settings(
+        MAIL_EDITOR_CONF=CONFIG,
+        MAIL_EDITOR_DYNAMIC_CONTEXT="tests.test_template_rendering.dynamic_context",
+    )
     def test_dynamic_context(self):
         subject_context = {}
         body_context = {}
 
         template = find_template("test_template")
 
-        subject, body = template.render(
-            body_context, subj_context=subject_context
-        )
+        subject, body = template.render(body_context, subj_context=subject_context)
 
         self.assertEquals(subject, "Important message for DYNAMIC")
         self.assertIn("Test mail sent from testcase with DYNAMIC", body)
@@ -89,11 +82,9 @@ class TemplateRenderTestCase(TestCase):
         body_context = {"id": "222"}
 
         template = find_template("test_template")
-        template.base_template_path = b''
+        template.base_template_path = b""
 
-        subject, body = template.render(
-            body_context, subj_context=subject_context
-        )
+        subject, body = template.render(body_context, subj_context=subject_context)
 
         self.assertEquals(subject, "Important message for 222")
         self.assertIn("Test mail sent from testcase with 222", body)
@@ -110,9 +101,7 @@ class TemplateRenderTestCase(TestCase):
             template = find_template("test_template")
             template.base_template_path = "__not-exists__"
 
-            subject, body = template.render(
-                body_context, subj_context=subject_context
-            )
+            subject, body = template.render(body_context, subj_context=subject_context)
 
             self.assertEquals(subject, "Important message for 333")
             self.assertIn("Test mail sent from testcase with 333", body)
@@ -123,12 +112,9 @@ class TemplateRenderTestCase(TestCase):
 
         subject_context, body_context = template.get_preview_contexts()
 
-        subject, body = template.render(
-            body_context, subj_context=subject_context
-        )
+        subject, body = template.render(body_context, subj_context=subject_context)
 
         # rendered placeholder
         self.assertEquals(subject, "Important message for --id--")
         # rendered example
         self.assertIn("Test mail sent from testcase with 321", body)
-

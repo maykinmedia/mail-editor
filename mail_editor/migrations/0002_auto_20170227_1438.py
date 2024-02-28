@@ -8,18 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mail_editor', '0001_initial'),
+        ("mail_editor", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mailtemplate',
-            name='remarks',
-            field=models.TextField(blank=True, default='', help_text='Extra information about the template', verbose_name='remarks'),
+            model_name="mailtemplate",
+            name="remarks",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="Extra information about the template",
+                verbose_name="remarks",
+            ),
         ),
         migrations.AlterField(
-            model_name='mailtemplate',
-            name='template_type',
-            field=models.CharField(max_length=50, unique=True, verbose_name='type'),
+            model_name="mailtemplate",
+            name="template_type",
+            field=models.CharField(max_length=50, unique=True, verbose_name="type"),
         ),
     ]

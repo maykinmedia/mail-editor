@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mail_editor', '0010_auto_20210422_1354'),
+        ("mail_editor", "0010_auto_20210422_1354"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='mailtemplate',
+            name="mailtemplate",
             unique_together=set(),
         ),
     ]

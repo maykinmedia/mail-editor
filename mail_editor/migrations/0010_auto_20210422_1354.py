@@ -6,23 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mail_editor', '0009_auto_20200416_1105'),
+        ("mail_editor", "0009_auto_20200416_1105"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mailtemplate',
-            name='internal_name',
-            field=models.CharField(blank=True, default='', max_length=255),
+            model_name="mailtemplate",
+            name="internal_name",
+            field=models.CharField(blank=True, default="", max_length=255),
         ),
         migrations.AlterField(
-            model_name='mailtemplate',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="mailtemplate",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='mailtemplate',
-            name='language',
-            field=models.CharField(blank=True, choices=[('nl', 'Dutch'), ('en', 'English')], max_length=10, null=True),
+            model_name="mailtemplate",
+            name="language",
+            field=models.CharField(
+                blank=True,
+                choices=[("nl", "Dutch"), ("en", "English")],
+                max_length=10,
+                null=True,
+            ),
         ),
     ]

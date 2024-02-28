@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
 from django.core import mail
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
 from django_webtest import WebTest
 
 from mail_editor.helpers import find_template
@@ -34,7 +35,9 @@ class AdminTestCase(WebTest):
 
         current_site_mock.domain.return_value = "custom.domain.com"
 
-        self.super_user = User.objects.create(username="admin", is_staff=True, is_superuser=True)
+        self.super_user = User.objects.create(
+            username="admin", is_staff=True, is_superuser=True
+        )
 
     def tearDown(self):
         patch.stopall()
@@ -42,7 +45,7 @@ class AdminTestCase(WebTest):
     def test_changelist_view(self):
         template = find_template("test_template")
 
-        url = reverse('admin:mail_editor_mailtemplate_changelist')
+        url = reverse("admin:mail_editor_mailtemplate_changelist")
 
         response = self.app.get(url, user=self.super_user)
 
@@ -63,22 +66,25 @@ class AdminTestCase(WebTest):
         template.subject = "something else"
         template.save()
 
-        url = reverse('admin:mail_editor_mailtemplate_changelist')
+        url = reverse("admin:mail_editor_mailtemplate_changelist")
 
         response = self.app.get(url, user=self.super_user)
         form = response.forms["changelist-form"]
-        form['action'] = 'reload_templates'
-        form['_selected_action'] = [str(template.pk)]
+        form["action"] = "reload_templates"
+        form["_selected_action"] = [str(template.pk)]
         response = form.submit().follow()
 
         template.refresh_from_db()
-        self.assertIn(str(_("Test mail sent from testcase with {{ id }}")), template.body, )
+        self.assertIn(
+            str(_("Test mail sent from testcase with {{ id }}")),
+            template.body,
+        )
         self.assertEqual(template.subject, _("Important message for {{ id }}"))
 
     def test_change_view(self):
         template = find_template("test_template")
 
-        url = reverse('admin:mail_editor_mailtemplate_change', args=[template.id])
+        url = reverse("admin:mail_editor_mailtemplate_change", args=[template.id])
 
         response = self.app.get(url, user=self.super_user)
         form = response.forms["mailtemplate_form"]
@@ -88,7 +94,7 @@ class AdminTestCase(WebTest):
         self.assertEqual(template.subject, "mail subject")
 
     def test_add_view(self):
-        url = reverse('admin:mail_editor_mailtemplate_add')
+        url = reverse("admin:mail_editor_mailtemplate_add")
 
         response = self.app.get(url, user=self.super_user)
         form = response.forms["mailtemplate_form"]
@@ -105,7 +111,7 @@ class AdminTestCase(WebTest):
     def test_add_view__handle_duplicates(self):
         template = find_template("test_template")
 
-        url = reverse('admin:mail_editor_mailtemplate_add')
+        url = reverse("admin:mail_editor_mailtemplate_add")
 
         with self.subTest("unique language templates"):
             with override_settings(MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES=True):
@@ -115,9 +121,15 @@ class AdminTestCase(WebTest):
                 form["subject"] = "mail subject"
                 form["body"] = "mail body"
                 response = form.submit(status=200)
-                self.assertEqual(str(response.context["errors"][0][0]), _('Mail template with this type and language already exists'))
+                self.assertEqual(
+                    str(response.context["errors"][0][0]),
+                    _("Mail template with this type and language already exists"),
+                )
 
-                self.assertEqual(1, MailTemplate.objects.filter(template_type="test_template").count())
+                self.assertEqual(
+                    1,
+                    MailTemplate.objects.filter(template_type="test_template").count(),
+                )
 
         with self.subTest("not-unique language templates"):
             with override_settings(MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES=False):
@@ -127,26 +139,29 @@ class AdminTestCase(WebTest):
                 form["subject"] = "mail subject"
                 form["body"] = "mail body"
                 response = form.submit().follow()
-                self.assertEqual(2, MailTemplate.objects.filter(template_type="test_template").count())
+                self.assertEqual(
+                    2,
+                    MailTemplate.objects.filter(template_type="test_template").count(),
+                )
 
     def test_variable_view(self):
         template = find_template("test_template")
 
-        url = reverse('admin:mailtemplate_variables', args=[template.template_type])
+        url = reverse("admin:mailtemplate_variables", args=[template.template_type])
 
         response = self.app.get(url, user=self.super_user)
 
     def test_preview_view(self):
         template = find_template("test_template")
 
-        url = reverse('admin:mailtemplate_preview', args=[template.id])
+        url = reverse("admin:mailtemplate_preview", args=[template.id])
 
         response = self.app.get(url, user=self.super_user)
 
         self.assertContains(response, _("Important message for --id--"))
 
         # send the mail
-        form = response.forms['mailtemplate_form']
+        form = response.forms["mailtemplate_form"]
         form["recipient"] = "test@example.com"
         response = form.submit()
 
@@ -158,7 +173,7 @@ class AdminTestCase(WebTest):
     def test_render_view(self):
         template = find_template("test_template")
 
-        url = reverse('admin:mailtemplate_render', args=[template.id])
+        url = reverse("admin:mailtemplate_render", args=[template.id])
 
         response = self.app.get(url, user=self.super_user)
 

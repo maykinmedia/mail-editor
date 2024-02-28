@@ -8,22 +8,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mail_editor', '0003_delete_mail'),
+        ("mail_editor", "0003_delete_mail"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mailtemplate',
-            name='language',
-            field=models.CharField(blank=True, choices=[('nl', 'Dutch'), ('en', 'English')], max_length=10),
+            model_name="mailtemplate",
+            name="language",
+            field=models.CharField(
+                blank=True, choices=[("nl", "Dutch"), ("en", "English")], max_length=10
+            ),
         ),
         migrations.AlterField(
-            model_name='mailtemplate',
-            name='template_type',
-            field=models.CharField(max_length=50, verbose_name='type'),
+            model_name="mailtemplate",
+            name="template_type",
+            field=models.CharField(max_length=50, verbose_name="type"),
         ),
         migrations.AlterUniqueTogether(
-            name='mailtemplate',
-            unique_together=set([('template_type', 'language')]),
+            name="mailtemplate",
+            unique_together=set([("template_type", "language")]),
         ),
     ]
