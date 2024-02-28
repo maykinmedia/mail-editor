@@ -1,11 +1,14 @@
 """
 Defines helpers for validating e-mail templates
 """
+
 from __future__ import absolute_import, unicode_literals
 
 from django.core.exceptions import ValidationError
 from django.template import (  # TODO: should be able to specify engine
-    Context, Template, TemplateSyntaxError
+    Context,
+    Template,
+    TemplateSyntaxError,
 )
 from django.template.base import VariableNode
 from django.utils.translation import gettext_lazy as _
@@ -13,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 class MailTemplateValidator(object):
 
-    code = 'invalid'
+    code = "invalid"
 
     def __init__(self, template):
         self.template = template
@@ -36,20 +39,26 @@ class MailTemplateValidator(object):
                     {{ source|linenumbers|linebreaks }}
                 {% endif %}
             """
-            if hasattr(exc, 'django_template_source'):
+            if hasattr(exc, "django_template_source"):
                 source = exc.django_template_source[0].source
                 pz = exc.django_template_source[1]
-                highlighted_pz = ">>>>{0}<<<<".format(source[pz[0]:pz[1]])
-                source = '{0}{1}{2}'.format(source[:pz[0]], highlighted_pz, source[pz[1]:])
-                _error = _('TemplateSyntaxError: {0}').format(exc.args[0])
-            elif hasattr(exc, 'template_debug'):
-                _error = _('TemplateSyntaxError: {0}').format(exc.template_debug.get('message'))
-                source = '{}'.format(exc.template_debug.get('during'))
+                highlighted_pz = ">>>>{0}<<<<".format(source[pz[0] : pz[1]])
+                source = "{0}{1}{2}".format(
+                    source[: pz[0]], highlighted_pz, source[pz[1] :]
+                )
+                _error = _("TemplateSyntaxError: {0}").format(exc.args[0])
+            elif hasattr(exc, "template_debug"):
+                _error = _("TemplateSyntaxError: {0}").format(
+                    exc.template_debug.get("message")
+                )
+                source = "{}".format(exc.template_debug.get("during"))
             else:
                 _error = exc
                 source = None
-            error = Template(error_tpl).render(Context({'error': _error, 'source': source}))
-            raise ValidationError(error, code='syntax_error')
+            error = Template(error_tpl).render(
+                Context({"error": _error, "source": source})
+            )
+            raise ValidationError(error, code="syntax_error")
 
     def check_variables(self, template, field):
         variables_seen = set()
@@ -64,22 +73,22 @@ class MailTemplateValidator(object):
             attribute = self._is_attribute(variables_seen, required_vars)
 
             if not attribute:
-                message = _('These variables are required, but missing: {vars}').format(
+                message = _("These variables are required, but missing: {vars}").format(
                     vars=self._format_vars(missing_vars)
                 )
-                raise ValidationError(params={field: message}, message=message, code=self.code)
+                raise ValidationError(
+                    params={field: message}, message=message, code=self.code
+                )
 
     def _is_attribute(self, vars, known_vars):
         for var in vars:
-            if any(
-                var.startswith("{}.".format(known_var)) for known_var in known_vars
-            ):
+            if any(var.startswith("{}.".format(known_var)) for known_var in known_vars):
                 return True
 
         return False
 
     def _format_vars(self, variables):
-        return ', '.join('{{{{ {} }}}}'.format(var) for var in variables)
+        return ", ".join("{{{{ {} }}}}".format(var) for var in variables)
 
 
 def validate_template(mail_template):
@@ -88,7 +97,7 @@ def validate_template(mail_template):
     """
     validator = MailTemplateValidator(mail_template)
     errors = []
-    for field in ['subject', 'body']:
+    for field in ["subject", "body"]:
         try:
             validator.validate(field)
         except ValidationError as error:
@@ -110,26 +119,26 @@ class Variable(object):
     present in the mail template, but this can be enforced.
     """
 
-    def __init__(self, name, description='', required=False, example=''):
+    def __init__(self, name, description="", required=False, example=""):
         self.name = name
         self.description = description
         self.required = required
         self.example = example
 
     def get_html_list_item(self):
-        variable_string = '<li>'
+        variable_string = "<li>"
         if self.required:
-            variable_string += '*'
+            variable_string += "*"
 
-        variable_string += '<b>{}</b>'.format(self.name)
+        variable_string += "<b>{}</b>".format(self.name)
 
         if self.description:
-            variable_string += ': <i>{}</i>'.format(self.description)
+            variable_string += ": <i>{}</i>".format(self.description)
 
         if self.example:
             variable_string += ' ("{}")'.format(self.example)
 
-        variable_string += '</li>'
+        variable_string += "</li>"
         return variable_string
 
     def __str__(self):

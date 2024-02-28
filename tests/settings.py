@@ -2,29 +2,29 @@ import os
 
 DJANGO_PROJECT_DIR = os.path.dirname(__file__)
 
-SECRET_KEY = 'supersekrit'
+SECRET_KEY = "supersekrit"
 
 DATABASES = {
-    'default': {
+    "default": {
         # Memory resident database, for easy testing.
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
     }
 }
 
 INSTALLED_APPS = [
-    'django.contrib.contenttypes',
-    'django.contrib.auth',
+    "django.contrib.contenttypes",
+    "django.contrib.auth",
     "django.contrib.sessions",
-    'django.contrib.messages',
-    'django.contrib.admin',
-    'mail_editor',
+    "django.contrib.messages",
+    "django.contrib.admin",
+    "mail_editor",
     "ckeditor",
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"
 
-ROOT_URLCONF = 'tests.urls'
+ROOT_URLCONF = "tests.urls"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -39,13 +39,11 @@ MIDDLEWARE = [
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.abspath(
-                os.path.join(os.path.dirname(__file__), os.path.pardir)
-            )
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
         ],
-        'APP_DIRS': True,
+        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -59,13 +57,17 @@ TEMPLATES = [
 ]
 
 MAIL_EDITOR_CONF = {
-    'template': {
-        'subject': [{
-            'name': 'foo',
-        }],
-        'body': [{
-            'name': 'bar',
-        }],
+    "template": {
+        "subject": [
+            {
+                "name": "foo",
+            }
+        ],
+        "body": [
+            {
+                "name": "bar",
+            }
+        ],
     }
 }
 
@@ -76,7 +78,10 @@ SILENCED_SYSTEM_CHECKS = [
 ]
 
 
-STATICFILES_DIRS = [os.path.join(DJANGO_PROJECT_DIR, "static"), os.path.join(DJANGO_PROJECT_DIR, "static_alternative")]
+STATICFILES_DIRS = [
+    os.path.join(DJANGO_PROJECT_DIR, "static"),
+    os.path.join(DJANGO_PROJECT_DIR, "static_alternative"),
+]
 
 # List of finder classes that know how to find static files in
 # various locations.

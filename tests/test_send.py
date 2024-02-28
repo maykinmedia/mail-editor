@@ -1,17 +1,11 @@
 from base64 import b64encode
+from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase, override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from mail_editor.helpers import find_template
-
-
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
-
 
 CONFIG = {
     "test_template": {
@@ -29,7 +23,7 @@ CONFIG = {
         "body_default": '<img src="foo.jpg"><a href="foo">{{ id }}</a>',
         "subject": [{"name": "id", "description": ""}],
         "body": [{"name": "id", "description": ""}],
-    }
+    },
 }
 
 
@@ -81,11 +75,11 @@ class EmailSendTestCase(TestCase):
 
         message_body, content_type = message.alternatives[0]
         self.assertEqual(content_type, "text/html")
-        self.assertNotIn('<img src="foo.jpg">',message_body)
-        self.assertIn('<img src="cid:MY_CID',message_body)
+        self.assertNotIn('<img src="foo.jpg">', message_body)
+        self.assertIn('<img src="cid:MY_CID', message_body)
 
-        self.assertNotIn('<a href="foo">',message_body)
-        self.assertIn('<a href="http://testserver/foo"',message_body)
+        self.assertNotIn('<a href="foo">', message_body)
+        self.assertIn('<a href="http://testserver/foo"', message_body)
 
         self.assertEqual(len(message.attachments), 1)
         attach = message.attachments[0]
