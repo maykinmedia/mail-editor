@@ -41,7 +41,7 @@ class TemplateRenderTestCase(TestCase):
 
         subject, body = template.render(body_context, subj_context=subject_context)
 
-        self.assertEquals(subject, "Important message for 111")
+        self.assertEqual(subject, "Important message for 111")
         self.assertIn("Test mail sent from testcase with 111", body)
 
     @override_settings(MAIL_EDITOR_CONF=CONFIG, MAIL_EDITOR_BASE_CONTEXT={"id": "BASE"})
@@ -53,7 +53,7 @@ class TemplateRenderTestCase(TestCase):
 
         subject, body = template.render(body_context, subj_context=subject_context)
 
-        self.assertEquals(subject, "Important message for BASE")
+        self.assertEqual(subject, "Important message for BASE")
         self.assertIn("Test mail sent from testcase with BASE", body)
 
     @override_settings(
@@ -68,7 +68,7 @@ class TemplateRenderTestCase(TestCase):
 
         subject, body = template.render(body_context, subj_context=subject_context)
 
-        self.assertEquals(subject, "Important message for DYNAMIC")
+        self.assertEqual(subject, "Important message for DYNAMIC")
         self.assertIn("Test mail sent from testcase with DYNAMIC", body)
 
     @override_settings(MAIL_EDITOR_CONF=CONFIG)
@@ -81,7 +81,7 @@ class TemplateRenderTestCase(TestCase):
 
         subject, body = template.render(body_context, subj_context=subject_context)
 
-        self.assertEquals(subject, "Important message for 222")
+        self.assertEqual(subject, "Important message for 222")
         self.assertIn("Test mail sent from testcase with 222", body)
 
     @override_settings(MAIL_EDITOR_CONF=CONFIG)
@@ -98,7 +98,7 @@ class TemplateRenderTestCase(TestCase):
 
             subject, body = template.render(body_context, subj_context=subject_context)
 
-            self.assertEquals(subject, "Important message for 333")
+            self.assertEqual(subject, "Important message for 333")
             self.assertIn("Test mail sent from testcase with 333", body)
 
     @override_settings(MAIL_EDITOR_CONF=CONFIG)
@@ -110,6 +110,6 @@ class TemplateRenderTestCase(TestCase):
         subject, body = template.render(body_context, subj_context=subject_context)
 
         # rendered placeholder
-        self.assertEquals(subject, "Important message for --id--")
+        self.assertEqual(subject, "Important message for --id--")
         # rendered example
         self.assertIn("Test mail sent from testcase with 321", body)

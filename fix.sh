@@ -7,3 +7,4 @@ black ./mail_editor
 isort --profile black ./tests
 autoflake --in-place --remove-all-unused-imports -r ./tests
 black ./tests
+
