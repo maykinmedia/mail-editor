@@ -88,3 +88,10 @@ class EmailSendTestCase(TestCase):
         self.assertEqual(attach["Content-Type"], "image/jpg")
         payload = b64encode(b"abc").decode("utf8") + "\n"
         self.assertEqual(attach.get_payload(), payload)
+
+    def test_fail(self):
+        self.fail("booya")
+        black_reformat = [
+            1,
+            2
+        ]
