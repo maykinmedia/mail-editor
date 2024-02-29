@@ -4,11 +4,15 @@ DJANGO_PROJECT_DIR = os.path.dirname(__file__)
 
 SECRET_KEY = "supersekrit"
 
+USE_TZ = True
+
+DEBUG = True
+
 DATABASES = {
     "default": {
         # Memory resident database, for easy testing.
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": os.path.join(DJANGO_PROJECT_DIR, "mail_editor.db"),
     }
 }
 
@@ -20,11 +24,12 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "mail_editor",
     "ckeditor",
+    "testapp",
 ]
 
 EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"
 
-ROOT_URLCONF = "tests.urls"
+ROOT_URLCONF = "testapp.urls"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -77,7 +82,6 @@ SILENCED_SYSTEM_CHECKS = [
     "models.W042",  # AutoField warning not relevant for tests
 ]
 
-
 STATICFILES_DIRS = [
     os.path.join(DJANGO_PROJECT_DIR, "static"),
     os.path.join(DJANGO_PROJECT_DIR, "static_alternative"),
@@ -90,6 +94,6 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static")
+STATIC_ROOT = os.path.join(DJANGO_PROJECT_DIR, "static")
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(os.path.dirname(__file__), "media")
+MEDIA_ROOT = os.path.join(DJANGO_PROJECT_DIR, "media")
