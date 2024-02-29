@@ -38,7 +38,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/maykinmedia/mail-editor"
-Documentation = "http://mail_editor.readthedocs.io/en/latest/"
+Documentation = "https://github.com/maykinmedia/mail-editor"
 "Bug Tracker" = "https://github.com/maykinmedia/mail-editor/issues"
 "Source Code" = "https://github.com/maykinmedia/mail-editor"
 
@@ -55,10 +55,6 @@ tests = [
 ]
 coverage = [
     "pytest-cov",
-]
-docs = [
-    "sphinx",
-    "sphinx-rtd-theme",
 ]
 release = [
     "bump-my-version",
@@ -85,7 +81,6 @@ current_version = "0.3.5"
 files = [
     {filename = "pyproject.toml"},
     {filename = "README.rst"},
-    {filename = "docs/conf.py"},
 ]
 
 [tool.coverage.report]
