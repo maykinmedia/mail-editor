@@ -183,9 +183,9 @@ class MailTemplate(models.Model):
         """
         subject, body = self.render(context, subj_context)
 
-        body, cid_attachments = process_html(body, settings.BASE_HOST)
+        result = process_html(body, settings.BASE_HOST)
 
-        text_body = txt or strip_tags(body)
+        text_body = txt or strip_tags(result.html)
 
         email_message = EmailMultiAlternatives(
             subject=subject,
@@ -195,7 +195,7 @@ class MailTemplate(models.Model):
             cc=cc_addresses,
             bcc=bcc_addresses,
         )
-        email_message.attach_alternative(body, "text/html")
+        email_message.attach_alternative(result.html, "text/html")
         email_message.mixed_subtype = "related"
 
         if attachments:
@@ -209,8 +209,8 @@ class MailTemplate(models.Model):
                 else:
                     email_message.attach(*attachment)
 
-        if cid_attachments:
-            for att in cid_attachments:
+        if result.cid_attachments:
+            for att in result.cid_attachments:
                 subtype = att.content_type.split("/", maxsplit=1)
                 assert subtype[0] == "image"
                 mime_image = MIMEImage(att.content, _subtype=subtype[1])
