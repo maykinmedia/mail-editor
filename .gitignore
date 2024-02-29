@@ -26,3 +26,5 @@ mail_editor.egg-info
 coverage\.xml
 
 junit\.xml
+
+testapp/mail_editor.db

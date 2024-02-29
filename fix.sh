@@ -8,3 +8,7 @@ isort --profile black ./tests
 autoflake --in-place --remove-all-unused-imports -r ./tests
 black ./tests
 
+
+isort --profile black ./testapp
+autoflake --in-place --remove-all-unused-imports -r ./testapp
+black ./testapp

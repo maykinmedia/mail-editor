@@ -161,13 +161,13 @@ You can set template variables to all of the mail templates in the following fas
 
 .. code:: python
 
-# static dictionary
-MAIL_EDITOR_BASE_CONTEXT = {
-    'url': 'http://www.maykinmedia.nl',
-}
+    # static dictionary
+    MAIL_EDITOR_BASE_CONTEXT = {
+        'url': 'http://www.maykinmedia.nl',
+    }
 
-# import path to callable that returns a dictionary
-MAIL_EDITOR_DYNAMIC_CONTEXT = "dotted.path.to.callable"
+    # import path to callable that returns a dictionary
+    MAIL_EDITOR_DYNAMIC_CONTEXT = "dotted.path.to.callable"
 
 
 Installation
@@ -178,6 +178,29 @@ Install with pip:
 .. code:: shell
 
     pip install mail_editor
+
+
+Local development
+-----------------
+
+To install and develop the library locally, use::
+
+.. code-block:: bash
+
+    pip install -e .[tests,coverage,docs,release]
+
+When running management commands via ``django-admin``, make sure to add the root
+directory to the python path (or use ``python -m django <command>``):
+
+.. code-block:: bash
+
+    export PYTHONPATH=. DJANGO_SETTINGS_MODULE=testapp.settings
+    django-admin check
+    # or other commands like:
+    django-admin migrate
+    django-admin createsuperuser
+    django-admin runserver
+    # django-admin makemessages -l nl
 
 
 .. _Django Yubin: https://github.com/APSL/django-yubin
