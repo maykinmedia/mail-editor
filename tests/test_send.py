@@ -6,6 +6,7 @@ from django.test import TestCase, override_settings
 from django.utils.translation import gettext_lazy as _
 
 from mail_editor.helpers import find_template
+from mail_editor.process import FileData
 
 CONFIG = {
     "test_template": {
@@ -56,7 +57,7 @@ class EmailSendTestCase(TestCase):
         self.assertEqual(message.attachments, [])
 
     @patch("mail_editor.process.cid_for_bytes", return_value="MY_CID")
-    @patch("mail_editor.process.load_image", return_value=(b"abc", "image/jpg"))
+    @patch("mail_editor.process.load_image", return_value=FileData(b"abc", "image/jpg"))
     @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_send_email_processed_content(self, m0, m1):
         subject_context = {"id": "111"}

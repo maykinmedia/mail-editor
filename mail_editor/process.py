@@ -3,6 +3,7 @@ import os
 from mimetypes import guess_type
 from typing import NamedTuple, Optional
 from urllib.parse import urlparse
+from urllib.request import urlopen
 
 from django.conf import settings
 from django.contrib.staticfiles import finders
@@ -24,26 +25,9 @@ supported_types = [
 ]
 
 
-def _html_inline_css(html: str) -> str:
-    inliner = css_inline.CSSInliner(
-        inline_style_tags=True,
-        keep_style_tags=False,
-        keep_link_tags=False,
-        extra_css=None,
-        load_remote_stylesheets=True,
-        # link urls will have been transformed earlier
-        base_url=f"file://{FILE_ROOT}/",
-    )
-    try:
-        html = inliner.inline(html)
-        return html
-    except css_inline.InlineError as e:
-        # we never want errors to block important mail
-        # maybe we should log though
-        if settings.DEBUG:
-            raise e
-        else:
-            return html
+class FileData(NamedTuple):
+    content: bytes
+    content_type: str
 
 
 class CIDAttachment(NamedTuple):
@@ -52,17 +36,23 @@ class CIDAttachment(NamedTuple):
     content_type: str
 
 
+class ProcessedHTML(NamedTuple):
+    html: str
+    cid_attachments: list[CIDAttachment]
+
+
 def process_html(
     html: str,
     base_url: str,
     extract_attachments: bool = True,
     inline_css: bool = True,
-) -> tuple[str, list[CIDAttachment]]:
+) -> ProcessedHTML:
     # TODO handle errors in cosmetics and make sure we always produce something
     parser = etree.HTMLParser()
     root = etree.fromstring(html, parser)
 
     static_url = make_url_absolute(settings.STATIC_URL, base_url)
+    media_url = make_url_absolute(settings.MEDIA_URL, base_url)
 
     image_attachments = dict()
     url_cid_cache = dict()
@@ -93,14 +83,16 @@ def process_html(
                     # we remembered this was a bad url
                     continue
             else:
-                content, content_type = load_image(url, base_url)
-                if not content:
+                data = load_image(url, base_url, static_url, media_url)
+                if not data:
                     # if we can't load the image leave element as-is and remember bad url
                     url_cid_cache[url] = None
                     continue
-                cid = cid_for_bytes(content)
+                cid = cid_for_bytes(data.content)
                 url_cid_cache[url] = cid
-                image_attachments[cid] = (content, content_type)
+                image_attachments[cid] = CIDAttachment(
+                    cid, data.content, data.content_type
+                )
 
             elem.set("src", f"cid:{cid}")
 
@@ -109,8 +101,8 @@ def process_html(
             url = elem.get("href")
             if not url:
                 continue
-            # resolving back to paths is needed so css-inliner's can use a file:// base_url
-            partial_file_path = find_static_path_for_inliner(url, static_url)
+            # resolving back to paths is needed so css-inliner can use a file:// base_url
+            partial_file_path = _find_static_path_for_inliner(url, static_url)
             if partial_file_path:
                 elem.set("href", partial_file_path)
             else:
@@ -124,75 +116,46 @@ def process_html(
     if inline_css:
         result = _html_inline_css(result)
 
-    attachments = [
-        CIDAttachment(cid, content, ct)
-        for cid, (content, ct) in image_attachments.items()
-    ]
+    # TODO support inlining CSS referenced images?
 
-    return result, attachments
+    return ProcessedHTML(result, list(image_attachments.values()))
 
 
 def cid_for_bytes(content: bytes) -> str:
-    # hash content for de-duplication
     h = hashlib.sha1(usedforsecurity=False)
     h.update(content)
     return h.hexdigest()
 
 
-def read_image_file(path: str) -> tuple[Optional[bytes], str]:
-    try:
-        with open(path, "rb") as f:
-            content = f.read()
-        # is guess_type() what we want or do we look in the content?
-        content_type, _encoding = guess_type(path)
-        return content, content_type
-    except Exception:
-        # TODO stricter exception types
-        # we never want errors to block important mail
-        # maybe we should log though
-        return None, ""
-
-
-def find_static_path_for_inliner(url: str, static_url: str) -> Optional[str]:
-    if url.startswith(static_url):
-        file_name = url[len(static_url) :]
-        file_path = os.path.join(settings.STATIC_ROOT, file_name)
-        if os.path.exists(file_path):
-            return str(os.path.relpath(file_path, start=FILE_ROOT))
-        else:
-            file_path = finders.find(file_name)
-            if file_path:
-                return str(os.path.relpath(file_path, start=FILE_ROOT))
-
-    # we don't allow external links
-    return None
-
-
-def load_image(url: str, base_url: str) -> tuple[Optional[bytes], str]:
+def load_image(
+    url: str, base_url: str, static_url: str, media_url: str
+) -> Optional[FileData]:
     # TODO support data urls? steal from mailcleaner
-    static_url = make_url_absolute(settings.STATIC_URL, base_url)
-    media_url = make_url_absolute(settings.MEDIA_URL, base_url)
-    content, content_type = None, ""
+    data = None
 
     url = make_url_absolute(url, base_url)
 
-    if url.startswith(static_url):
+    if url.startswith("data:"):
+        data = read_data_uri(url)
+
+    elif url.startswith(static_url):
         file_name = url[len(static_url) :]
         file_path = os.path.join(settings.STATIC_ROOT, file_name)
 
-        content, content_type = read_image_file(file_path)
-        if not content:
+        data = read_image_file(file_path)
+        if not data:
             # fallback for development
             file_path = finders.find(file_name)
             if file_path:
-                content, content_type = read_image_file(file_path)
+                data = read_image_file(file_path)
 
     elif url.startswith(media_url):
         file_name = url[len(media_url) :]
         file_path = os.path.join(settings.MEDIA_ROOT, file_name)
 
-        content, content_type = read_image_file(file_path)
+        data = read_image_file(file_path)
     # else:
+    #   NOTE: loading from http is currently not supported because of http overhead
     #     url = make_url_absolute(base_url)
     #     # TODO check domains?
     #     # TODO check status
@@ -201,18 +164,49 @@ def load_image(url: str, base_url: str) -> tuple[Optional[bytes], str]:
     #     content_type = r.headers["Content-Type"]
     #     content = r.content
 
-    if not content or content_type not in supported_types:
-        # TODO lets log
-        return None, ""
+    if data and data.content and data.content_type in supported_types:
+        return data
     else:
-        return content, content_type
+        # TODO lets log/?
+        return None
+
+
+def read_data_uri(uri: str) -> Optional[FileData]:
+    assert uri.startswith("data:")
+
+    try:
+        with urlopen(uri) as response:
+            content = response.read()
+            content_type = response.headers.get("Content-Type")
+            if content and content_type:
+                return FileData(content, content_type)
+    except Exception:
+        # TODO stricter exception types
+        # we never want errors to block important mail
+        # maybe we should log though
+        pass
+
+    return None
+
+
+def read_image_file(path: str) -> Optional[FileData]:
+    try:
+        with open(path, "rb") as f:
+            content = f.read()
+        # is guess_type() what we want or do we look in the content?
+        content_type, _encoding = guess_type(path)
+        return FileData(content, content_type)
+    except Exception:
+        # TODO stricter exception types
+        # we never want errors to block important mail
+        # maybe we should log though
+        return None
 
 
 def make_url_absolute(url: str, base_url: str = "") -> str:
     """
     base_url: https://domain
     """
-    # TODO surely there is a standard and proper way to do this?
     # TODO we're using the path part as file path so we should handle sneaky attempts to use relative ".."
     try:
         parse = urlparse(url)
@@ -233,3 +227,40 @@ def make_url_absolute(url: str, base_url: str = "") -> str:
     if url[0] != "/":
         url = f"/{url}"
     return base_url + url
+
+
+def _html_inline_css(html: str) -> str:
+    inliner = css_inline.CSSInliner(
+        inline_style_tags=True,
+        keep_style_tags=False,
+        keep_link_tags=False,
+        extra_css=None,
+        load_remote_stylesheets=True,
+        # link urls will have been transformed earlier
+        base_url=f"file://{FILE_ROOT}/",
+    )
+    try:
+        html = inliner.inline(html)
+        return html
+    except css_inline.InlineError as e:
+        # we never want errors to block important mail
+        # maybe we should log though
+        if settings.DEBUG:
+            raise e
+        else:
+            return html
+
+
+def _find_static_path_for_inliner(url: str, static_url: str) -> Optional[str]:
+    if url.startswith(static_url):
+        file_name = url[len(static_url) :]
+        file_path = os.path.join(settings.STATIC_ROOT, file_name)
+        if os.path.exists(file_path):
+            return str(os.path.relpath(file_path, start=FILE_ROOT))
+        else:
+            file_path = finders.find(file_name)
+            if file_path:
+                return str(os.path.relpath(file_path, start=FILE_ROOT))
+
+    # we don't allow external links
+    return None
