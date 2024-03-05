@@ -82,7 +82,7 @@ testpaths = ["tests"]
 DJANGO_SETTINGS_MODULE = "testapp.settings"
 
 [tool.bumpversion]
-current_version = "0.3.5"
+current_version = "0.3.6"
 files = [
     {filename = "pyproject.toml"},
     {filename = "README.rst"},
