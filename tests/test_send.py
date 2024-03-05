@@ -56,8 +56,12 @@ class EmailSendTestCase(TestCase):
         self.assertIn(str(_("Test mail sent from testcase with 111")), message.body)
         self.assertEqual(message.attachments, [])
 
-    @patch("mail_editor.process.cid_for_bytes", return_value="MY_CID")
-    @patch("mail_editor.process.load_image", return_value=FileData(b"abc", "image/jpg"))
+    @patch("mail_editor.process.cid_for_bytes", return_value="MY_CID", autospec=True)
+    @patch(
+        "mail_editor.process.load_image",
+        return_value=FileData(b"abc", "image/jpg"),
+        autospec=True,
+    )
     @override_settings(MAIL_EDITOR_CONF=CONFIG)
     def test_send_email_processed_content(self, m0, m1):
         subject_context = {"id": "111"}

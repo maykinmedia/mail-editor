@@ -10,8 +10,12 @@ class ProcessTestCase(TestCase):
     note the patched helpers are individually and more exhaustively tested elsewhere
     """
 
-    @patch("mail_editor.process.cid_for_bytes", return_value="MY_CID")
-    @patch("mail_editor.process.load_image", return_value=FileData(b"abc", "image/jpg"))
+    @patch("mail_editor.process.cid_for_bytes", return_value="MY_CID", autospec=True)
+    @patch(
+        "mail_editor.process.load_image",
+        return_value=FileData(b"abc", "image/jpg"),
+        autospec=True,
+    )
     def test_extract_images(self, m1, m2):
         html = """
             <html><body>
@@ -27,7 +31,7 @@ class ProcessTestCase(TestCase):
         self.assertHTMLEqual(result.html, expected_html)
         self.assertEqual(result.cid_attachments, [("MY_CID", b"abc", "image/jpg")])
 
-    @patch("mail_editor.process.load_image", return_value=None)
+    @patch("mail_editor.process.load_image", return_value=None, autospec=True)
     def test_extract_images__keeps_absolute_url_when_not_loadable(self, m):
         html = """
             <html><body>
