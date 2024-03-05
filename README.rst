@@ -187,7 +187,7 @@ To install and develop the library locally, use::
 
 .. code-block:: bash
 
-    pip install -e .[tests,coverage,docs,release]
+    pip install -e .[tests,coverage,release]
 
 When running management commands via ``django-admin``, make sure to add the root
 directory to the python path (or use ``python -m django <command>``):
