@@ -1,5 +1,4 @@
 from django import forms
-from django.apps import apps
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.template import loader
@@ -52,6 +51,6 @@ class MailTemplateForm(forms.ModelForm):
         try:
             current_site = get_current_site(None)
             domain = current_site.domain
-        except Exception as e:
+        except Exception:
             domain = ''
         self.fields['body'].initial = template.render({'domain': domain}, None)

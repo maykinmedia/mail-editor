@@ -6,12 +6,10 @@ from tempfile import NamedTemporaryFile
 
 from django.conf import settings as django_settings
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models import Q
-from django.template import Context, Template, loader
-from django.utils.encoding import python_2_unicode_compatible
+from django.template import Context, Template
 from django.utils.html import strip_tags
 from django.utils.module_loading import import_string
 from django.utils.safestring import mark_safe
@@ -45,7 +43,6 @@ class MailTemplateManager(models.Manager):
         return mail_template
 
 
-@python_2_unicode_compatible
 class MailTemplate(models.Model):
     template_type = models.CharField(_('type'), max_length=50)
     domain = models.ForeignKey(
