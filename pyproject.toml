@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mail_editor"
-version = "0.3.6"
+version = "0.3.7"
 description = "A Django package for email template editing"
 authors = [
     {name = "Maykin Media", email = "support@maykinmedia.nl"}
@@ -68,6 +68,7 @@ release = [
 
 [tool.setuptools.packages.find]
 include = ["mail_editor*"]
+exclude = ["tests", "testapp"]
 namespaces = false
 
 [tool.isort]
@@ -82,7 +83,7 @@ testpaths = ["tests"]
 DJANGO_SETTINGS_MODULE = "testapp.settings"
 
 [tool.bumpversion]
-current_version = "0.3.6"
+current_version = "0.3.7"
 files = [
     {filename = "pyproject.toml"},
     {filename = "README.rst"},
