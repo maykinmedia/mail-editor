@@ -1,6 +1,10 @@
 include License
 include README.rst
 recursive-include mail_editor/templates *
+recursive-include mail_editor *.html
+recursive-include mail_editor *.txt
+recursive-include mail_editor *.po
 recursive-include bin *
+recursive-include testapp *
 global-exclude __pycache__
 global-exclude *.py[co]
