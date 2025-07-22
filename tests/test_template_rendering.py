@@ -111,5 +111,4 @@ class TemplateRenderTestCase(TestCase):
 
         # rendered placeholder
         self.assertEqual(subject, "Important message for --id--")
-        # rendered example
-        self.assertIn("Test mail sent from testcase with 321", body)
+        self.assertIn("Test mail sent from testcase with --id--", body)

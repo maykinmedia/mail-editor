@@ -120,7 +120,7 @@ class MailTemplate(models.Model):
         def _get_context(section):
             context = {}
             for var in section:
-                value = var.example or base_context.get(var.name, "")
+                value = base_context.get(var.name, "")
                 if not value:
                     value = "--{}--".format(var.name)
                 context[var.name] = value
