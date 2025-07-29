@@ -84,10 +84,9 @@ DJANGO_SETTINGS_MODULE = "testapp.settings"
 
 [tool.bumpversion]
 current_version = "0.3.7"
-files = [
-    {filename = "pyproject.toml"},
-    {filename = "README.rst"},
-]
+tag = true
+tag_name = "{new_version}"
+commit = true
 
 [tool.coverage.report]
 exclude_also = [
