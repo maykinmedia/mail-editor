@@ -57,6 +57,13 @@ class Settings(object):
     def UNIQUE_LANGUAGE_TEMPLATES(self):
         return getattr(django_settings, "MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES", True)
 
+    @property
+    def DEFAULT_DOMAIN_ID(self):
+        """
+        Default domain_id to use when creating templates if not specified
+        """
+        return getattr(django_settings, "MAIL_EDITOR_DEFAULT_DOMAIN_ID", 1)
+
 
 settings = Settings()
 

@@ -20,6 +20,7 @@ class MailTemplateAdmin(admin.ModelAdmin):
         "template_type",
         "internal_name",
         "language",
+        "domain_id",
         "get_preview_link",
         "get_description",
         "subject",
@@ -29,6 +30,7 @@ class MailTemplateAdmin(admin.ModelAdmin):
         "template_type",
         "language",
         "internal_name",
+        "domain_id",
     )
     readonly_fields = (
         "get_variable_help_text",
@@ -54,6 +56,7 @@ class MailTemplateAdmin(admin.ModelAdmin):
                         "internal_name",
                         "template_type",
                         "language",
+                        "domain_id",
                         "get_preview_link",
                         "subject",
                         "body",

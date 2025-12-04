@@ -17,11 +17,23 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-def find_template(template_name, language=None):
+def find_template(template_name, language=None, domain_id=None):
+    """
+    Find or create a mail template by name, language, and optionally domain_id.
+
+    :param template_name: The template type identifier
+    :param language: Optional language code
+    :param domain_id: Optional domain identifier (defaults to DEFAULT_DOMAIN_ID setting)
+    :return: MailTemplate instance
+    """
+    if domain_id is None:
+        domain_id = settings.DEFAULT_DOMAIN_ID
+
     if language:
         template, _created = MailTemplate.objects.get_or_create(
             template_type=template_name,
             language=language,
+            domain_id=domain_id,
             defaults={
                 "subject": get_subject(template_name),
                 "body": get_body(template_name),
@@ -30,13 +42,14 @@ def find_template(template_name, language=None):
         )
     else:
         base_qs = MailTemplate.objects.filter(
-            template_type=template_name, language__isnull=True
+            template_type=template_name, language__isnull=True, domain_id=domain_id
         )
         if base_qs.exists():
             template = base_qs.first()
         else:
             template = MailTemplate.objects.create(
                 template_type=template_name,
+                domain_id=domain_id,
                 subject=get_subject(template_name),
                 body=get_body(template_name),
                 base_template_path=get_base_template_path(template_name),

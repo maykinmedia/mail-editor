@@ -24,21 +24,48 @@ logger = logging.getLogger(__name__)
 
 
 class MailTemplateManager(models.Manager):
-    def get_for_language(self, template_type, language):
+    def get_for_language(self, template_type, language, domain_id=None):
         """
         Returns the `MailTemplate` for the given type in the given language. If the language does not exist, it
         attempts to find and return the fallback (no language) instance.
 
         :param template_type:
         :param language:
+        :param domain_id: Optional domain_id to filter templates by domain
         :return:
         """
+        queryset = self.filter(template_type=template_type)
+
+        if domain_id is not None:
+            queryset = queryset.filter(domain_id=domain_id)
+
         mail_template = (
-            self.filter(template_type=template_type)
-            .filter(Q(language=language) | Q(language=""))
+            queryset.filter(Q(language=language) | Q(language=""))
             .order_by("-language")
             .first()
         )
+        if mail_template is None:
+            raise MailTemplate.DoesNotExist()
+        return mail_template
+
+    def get_for_domain(self, template_type, domain_id, language=None):
+        """
+        Returns the `MailTemplate` for the given type and domain_id.
+        Optionally filters by language if provided.
+
+        :param template_type:
+        :param domain_id:
+        :param language: Optional language code
+        :return:
+        """
+        queryset = self.filter(template_type=template_type, domain_id=domain_id)
+
+        if language:
+            queryset = queryset.filter(Q(language=language) | Q(language="")).order_by(
+                "-language"
+            )
+
+        mail_template = queryset.first()
         if mail_template is None:
             raise MailTemplate.DoesNotExist()
         return mail_template
@@ -47,7 +74,7 @@ class MailTemplateManager(models.Manager):
 class MailTemplate(models.Model):
     internal_name = models.CharField(max_length=255, default="", blank=True)
     template_type = models.CharField(_("type"), max_length=50)
-    language = models.CharField(max_length=10, blank=True, null=True)
+    language = models.CharField(max_length=10, blank=True)
 
     remarks = models.TextField(
         _("remarks"),
@@ -62,10 +89,10 @@ class MailTemplate(models.Model):
     base_template_path = models.CharField(
         _("Base template path"),
         max_length=200,
-        null=True,
         blank=True,
         help_text="Leave empty for default template. Override to load a different template.",
     )
+    domain_id = models.IntegerField(null=False, default=1)
 
     objects = MailTemplateManager()
 
@@ -77,7 +104,7 @@ class MailTemplate(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(MailTemplate, self).__init__(*args, **kwargs)
-        self.config = get_config().get(self.template_type) or dict()
+        self.config = get_config().get(self.template_type) or {}
 
     def __str__(self):
         if self.internal_name:
@@ -92,12 +119,16 @@ class MailTemplate(models.Model):
 
         if settings.UNIQUE_LANGUAGE_TEMPLATES:
             queryset = self.__class__.objects.filter(
-                language=self.language, template_type=self.template_type
+                language=self.language,
+                template_type=self.template_type,
+                domain_id=self.domain_id,
             ).values_list("pk", flat=True)
 
             if queryset.exists() and not (self.pk and self.pk in queryset):
                 raise ValidationError(
-                    _("Mail template with this type and language already exists")
+                    _(
+                        "Mail template with this type, language and domain already exists"
+                    )
                 )
 
     def reload_template(self):
@@ -142,7 +173,7 @@ class MailTemplate(models.Model):
         try:
             current_site = get_current_site(None)
             domain = current_site.domain
-        except Exception as e:
+        except Exception:
             domain = ""
 
         base_context.update(context)
