@@ -1,12 +1,11 @@
 MailEditor
 ==========
 
-.. image:: https://codecov.io/gh/maykinmedia/mail-editor/branch/develop/graph/badge.svg
-    :target: https://codecov.io/gh/maykinmedia/mail-editor
-    :alt: Coverage
-.. image:: https://codeclimate.com/github/codeclimate/codeclimate/badges/gpa.svg
-   :target: https://codeclimate.com/github/codeclimate/codeclimate
-   :alt: Code Climate
+:Version: 0.3.8
+
+|build-status| |code-quality| |black| |coverage|
+
+|python-versions| |django-versions| |pypi-version|
 
 
 Django e-mail templates!
@@ -32,8 +31,8 @@ This is only tested on a postgres database.
 
 Supported are:
 
-- python 3.10, 3.11, 3.12
-- Django 3.2, 4.2
+- python 3.11, 3.12, 3.13
+- Django 4.2, 5.2
 - PostgreSQL
 
 Warning
@@ -70,7 +69,7 @@ Add the urls:
 
     # urls.py
 
-    url(r'^mail-editor/', include('mail_editor.urls', namespace='mail_editor')),
+    path('mail-editor/', include('mail_editor.urls', namespace='mail_editor')),
 
 
 Using the template
@@ -209,3 +208,27 @@ directory to the python path (or use ``python -m django <command>``):
 .. _foundation for email: http://foundation.zurb.com/emails.html
 .. role:: python(code)
     :language: python
+
+.. |build-status| image:: https://github.com/maykinmedia/mail-editor/actions/workflows/ci.yml/badge.svg
+    :alt: Build status
+    :target: https://github.com/maykinmedia/mail-editor/actions?query=workflow%3A%22Run+CI%22
+
+.. |code-quality| image:: https://github.com/maykinmedia/mail-editor/actions/workflows/code_quality.yml/badge.svg
+     :alt: Code quality checks
+     :target: https://github.com/maykinmedia/mail-editor/actions?query=workflow%3A%22Code+quality+checks%22
+
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: black
+
+.. |coverage| image:: https://codecov.io/github/maykinmedia/mail-editor/graph/badge.svg?token=NXCPTBOL6N
+    :target: https://codecov.io/gh/maykinmedia/mail-editor
+    :alt: Coverage status
+
+
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/mail-editor.svg
+
+.. |django-versions| image:: https://img.shields.io/pypi/djversions/mail-editor.svg
+
+.. |pypi-version| image:: https://img.shields.io/pypi/v/mail-editor.svg
+    :target: https://pypi.org/project/mail-editor/
