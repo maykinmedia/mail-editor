@@ -1,7 +1,7 @@
 MailEditor
 ==========
 
-:Version: 0.3.8
+:Version: 0.3.9
 
 |build-status| |code-quality| |black| |coverage|
 
