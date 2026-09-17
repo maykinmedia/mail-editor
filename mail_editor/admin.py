@@ -39,9 +39,7 @@ class MailTemplateAdmin(admin.ModelAdmin):
         "template_type",
         "subject",
     )
-    actions = [
-        "reload_templates",
-    ]
+    actions = ("reload_templates",)
 
     form = MailTemplateForm
 
@@ -142,6 +140,4 @@ class MailTemplateAdmin(admin.ModelAdmin):
                 level=messages.SUCCESS,
             )
 
-    reload_templates.short_description = _(
-        "Reset templates (WARNING: overwrites current content)"
-    )
+    reload_templates.short_description = _("Reset templates (WARNING: overwrites current content)")

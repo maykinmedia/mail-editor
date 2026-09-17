@@ -6,7 +6,7 @@ from django.utils.module_loading import import_string
 from .mail_template import Variable
 
 
-class Settings(object):
+class Settings:
     """
     note: changed to dynamic properties to allow testing with different settings
     """
@@ -20,6 +20,7 @@ class Settings(object):
             warnings.warn(
                 "Setting MAIL_EDITOR_TEMPLATES is deprecated, please use MAIL_EDITOR_CONF.",
                 DeprecationWarning,
+                stacklevel=2,
             )
         return tmp
 
@@ -71,13 +72,8 @@ def get_choices() -> list[tuple[str, str]]:
 def get_config():
     config = {}
     for key, values in settings.TEMPLATES.items():
-        subject_variables = []
-        for var in values.get("subject", []):
-            subject_variables.append(Variable(**var))
-
-        body_variables = []
-        for var in values.get("body", []):
-            body_variables.append(Variable(**var))
+        subject_variables = [Variable(**var) for var in values.get("subject", [])]
+        body_variables = [Variable(**var) for var in values.get("body", [])]
 
         config[key] = {"subject": subject_variables, "body": body_variables}
     return config

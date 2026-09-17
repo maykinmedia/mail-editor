@@ -12,8 +12,7 @@ from django.template.base import VariableNode
 from django.utils.translation import gettext_lazy as _
 
 
-class MailTemplateValidator(object):
-
+class MailTemplateValidator:
     code = "invalid"
 
     def __init__(self, template):
@@ -40,23 +39,17 @@ class MailTemplateValidator(object):
             if hasattr(exc, "django_template_source"):
                 source = exc.django_template_source[0].source
                 pz = exc.django_template_source[1]
-                highlighted_pz = ">>>>{0}<<<<".format(source[pz[0] : pz[1]])
-                source = "{0}{1}{2}".format(
-                    source[: pz[0]], highlighted_pz, source[pz[1] :]
-                )
+                highlighted_pz = f">>>>{source[pz[0] : pz[1]]}<<<<"
+                source = f"{source[: pz[0]]}{highlighted_pz}{source[pz[1] :]}"
                 _error = _("TemplateSyntaxError: {0}").format(exc.args[0])
             elif hasattr(exc, "template_debug"):
-                _error = _("TemplateSyntaxError: {0}").format(
-                    exc.template_debug.get("message")
-                )
+                _error = _("TemplateSyntaxError: {0}").format(exc.template_debug.get("message"))
                 source = "{}".format(exc.template_debug.get("during"))
             else:
                 _error = exc
                 source = None
-            error = Template(error_tpl).render(
-                Context({"error": _error, "source": source})
-            )
-            raise ValidationError(error, code="syntax_error")
+            error = Template(error_tpl).render(Context({"error": _error, "source": source}))
+            raise ValidationError(error, code="syntax_error") from exc
 
     def check_variables(self, template, field):
         variables_seen = set()
@@ -75,19 +68,17 @@ class MailTemplateValidator(object):
                 message = _("These variables are required, but missing: {vars}").format(
                     vars=self._format_vars(missing_vars)
                 )
-                raise ValidationError(
-                    params={field: message}, message=message, code=self.code
-                )
+                raise ValidationError(params={field: message}, message=message, code=self.code)
 
     def _is_attribute(self, var_names, known_vars):
         for var in var_names:
-            if any(var.startswith("{}.".format(known_var)) for known_var in known_vars):
+            if any(var.startswith(f"{known_var}.") for known_var in known_vars):
                 return True
 
         return False
 
     def _format_vars(self, variables):
-        return ", ".join("{{{{ {} }}}}".format(var) for var in variables)
+        return ", ".join(f"{{{{ {var} }}}}" for var in variables)
 
 
 def validate_template(mail_template):
@@ -110,7 +101,7 @@ def validate_template(mail_template):
         raise main_error
 
 
-class Variable(object):
+class Variable:
     """
     A {{ template variable }}.
 
@@ -129,13 +120,13 @@ class Variable(object):
         if self.required:
             variable_string += "*"
 
-        variable_string += "<b>{}</b>".format(self.name)
+        variable_string += f"<b>{self.name}</b>"
 
         if self.description:
-            variable_string += ": <i>{}</i>".format(self.description)
+            variable_string += f": <i>{self.description}</i>"
 
         if self.example:
-            variable_string += ' ("{}")'.format(self.example)
+            variable_string += f' ("{self.example}")'
 
         variable_string += "</li>"
         return variable_string

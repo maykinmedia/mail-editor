@@ -29,9 +29,7 @@ def find_template(template_name, language=None):
             },
         )
     else:
-        base_qs = MailTemplate.objects.filter(
-            template_type=template_name, language__isnull=True
-        )
+        base_qs = MailTemplate.objects.filter(template_type=template_name, language__isnull=True)
         if base_qs.exists():
             template = base_qs.first()
         else:
@@ -69,9 +67,7 @@ def get_body(template_name):
 
     template = loader.get_template("mail/_outer_table.html")
     current_site = get_current_site(None)
-    return template.render(
-        {"domain": current_site.domain, "default": mark_safe(default)}, None
-    )
+    return template.render({"domain": current_site.domain, "default": mark_safe(default)}, None)
 
 
 def get_base_template_path(template_name):
@@ -91,6 +87,6 @@ def base_template_loader(template_path, context):
 
     try:
         return loader.render_to_string(template_path, context)
-    except (TemplateDoesNotExist, TemplateSyntaxError) as e:
-        logging.exception("Base template could not be rendered")
+    except (TemplateDoesNotExist, TemplateSyntaxError):
+        logger.exception("Base template could not be rendered")
         return loader.render_to_string(default_path, context)

@@ -27,9 +27,7 @@ class TemplateBrowserPreviewView(SingleObjectMixin, View):
         subject_ctx, body_ctx = template.get_preview_contexts()
 
         _subject, body = template.render(body_ctx, subject_ctx)
-        body, _attachments = process_html(
-            body, settings.BASE_HOST, extract_attachments=False
-        )
+        body, _attachments = process_html(body, settings.BASE_HOST, extract_attachments=False)
         return HttpResponse(body, content_type="text/html")
 
 
@@ -50,13 +48,9 @@ class TemplateEmailPreviewFormView(FormView, DetailView):
         result = self.object.send_email([recipient], body_ctx, subj_context=subject_ctx)
 
         if result:
-            messages.success(
-                self.request, _("Email sent to {email}").format(email=recipient)
-            )
+            messages.success(self.request, _("Email sent to {email}").format(email=recipient))
         else:
-            messages.warning(
-                self.request, _("Email not sent to {email}").format(email=recipient)
-            )
+            messages.warning(self.request, _("Email not sent to {email}").format(email=recipient))
 
         return super().form_valid(form)
 
@@ -78,9 +72,7 @@ class TemplateEmailPreviewFormView(FormView, DetailView):
         ctx.update(
             {
                 "subject": subject,
-                "render_url": reverse(
-                    "admin:mailtemplate_render", kwargs={"pk": self.object.id}
-                ),
+                "render_url": reverse("admin:mailtemplate_render", kwargs={"pk": self.object.id}),
             }
         )
         return ctx

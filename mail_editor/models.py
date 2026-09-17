@@ -62,7 +62,7 @@ class MailTemplateManager(models.Manager):
 class MailTemplate(models.Model):
     internal_name = models.CharField(max_length=255, default="", blank=True)
     template_type = models.CharField(_("type"), max_length=50)
-    language = models.CharField(max_length=10, blank=True, null=True)
+    language = models.CharField(max_length=10, blank=True, null=True)  # noqa: DJ001 - changing requires a migration
 
     remarks = models.TextField(
         _("remarks"),
@@ -71,10 +71,8 @@ class MailTemplate(models.Model):
         help_text=_("Extra information about the template"),
     )
     subject = models.CharField(_("subject"), max_length=255)
-    body = models.TextField(
-        _("body"), help_text=_("Add the body with {{variable}} placeholders")
-    )
-    base_template_path = models.CharField(
+    body = models.TextField(_("body"), help_text=_("Add the body with {{variable}} placeholders"))
+    base_template_path = models.CharField(  # noqa: DJ001 - changing requires a migration
         _("Base template path"),
         max_length=200,
         null=True,
@@ -91,8 +89,8 @@ class MailTemplate(models.Model):
         verbose_name_plural = _("mail templates")
 
     def __init__(self, *args, **kwargs):
-        super(MailTemplate, self).__init__(*args, **kwargs)
-        self.config = get_config().get(self.template_type) or dict()
+        super().__init__(*args, **kwargs)
+        self.config = get_config().get(self.template_type) or {}
 
     def __str__(self):
         if self.internal_name:
@@ -111,9 +109,7 @@ class MailTemplate(models.Model):
             ).values_list("pk", flat=True)
 
             if queryset.exists() and not (self.pk and self.pk in queryset):
-                raise ValidationError(
-                    _("Mail template with this type and language already exists")
-                )
+                raise ValidationError(_("Mail template with this type and language already exists"))
 
     def reload_template(self):
         from .helpers import get_base_template_path, get_body, get_subject
@@ -137,7 +133,7 @@ class MailTemplate(models.Model):
             for var in section:
                 value = base_context.get(var.name, "")
                 if not value:
-                    value = "--{}--".format(var.name)
+                    value = f"--{var.name}--"
                 context[var.name] = value
             return context
 
@@ -157,7 +153,7 @@ class MailTemplate(models.Model):
         try:
             current_site = get_current_site(None)
             domain = current_site.domain
-        except Exception as e:
+        except Exception:  # noqa: BLE001 - sites framework may be unavailable/misconfigured
             domain = ""
 
         base_context.update(context)
@@ -215,9 +211,7 @@ class MailTemplate(models.Model):
         if attachments:
             for attachment in attachments:
                 if not attachment or not isinstance(attachment, tuple):
-                    raise ValueError(
-                        "Attachments should be passed as a list of tuples."
-                    )
+                    raise ValueError("Attachments should be passed as a list of tuples.")
                 if os.path.isabs(attachment[0]):
                     email_message.attach_file(*attachment)
                 else:

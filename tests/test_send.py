@@ -45,9 +45,7 @@ class EmailSendTestCase(TestCase):
 
         template = find_template("test_template")
 
-        res = template.send_email(
-            ["foo@example.com"], body_context, subj_context=subject_context
-        )
+        res = template.send_email(["foo@example.com"], body_context, subj_context=subject_context)
         self.assertEqual(res, 1)
 
         self.assertEqual(len(mail.outbox), 1)
@@ -69,9 +67,7 @@ class EmailSendTestCase(TestCase):
 
         template = find_template("process_template")
 
-        res = template.send_email(
-            ["foo@example.com"], body_context, subj_context=subject_context
-        )
+        res = template.send_email(["foo@example.com"], body_context, subj_context=subject_context)
         self.assertEqual(res, 1)
 
         self.assertEqual(len(mail.outbox), 1)

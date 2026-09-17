@@ -31,9 +31,7 @@ class AdminTestCase(WebTest):
 
         current_site_mock.domain.return_value = "custom.domain.com"
 
-        self.super_user = User.objects.create(
-            username="admin", is_staff=True, is_superuser=True
-        )
+        self.super_user = User.objects.create(username="admin", is_staff=True, is_superuser=True)
 
     def tearDown(self):
         patch.stopall()
@@ -105,47 +103,51 @@ class AdminTestCase(WebTest):
         self.assertEqual(template.body, "mail body")
 
     def test_add_view__handle_duplicates(self):
-        template = find_template("test_template")
+        find_template("test_template")
 
         url = reverse("admin:mail_editor_mailtemplate_add")
 
-        with self.subTest("unique language templates"):
-            with override_settings(MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES=True):
-                response = self.app.get(url, user=self.super_user)
-                form = response.forms["mailtemplate_form"]
-                form["template_type"] = "test_template"
-                form["subject"] = "mail subject"
-                form["body"] = "mail body"
-                response = form.submit(status=200)
-                self.assertEqual(
-                    str(response.context["errors"][0][0]),
-                    _("Mail template with this type and language already exists"),
-                )
+        with (
+            self.subTest("unique language templates"),
+            override_settings(MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES=True),
+        ):
+            response = self.app.get(url, user=self.super_user)
+            form = response.forms["mailtemplate_form"]
+            form["template_type"] = "test_template"
+            form["subject"] = "mail subject"
+            form["body"] = "mail body"
+            response = form.submit(status=200)
+            self.assertEqual(
+                str(response.context["errors"][0][0]),
+                _("Mail template with this type and language already exists"),
+            )
 
-                self.assertEqual(
-                    1,
-                    MailTemplate.objects.filter(template_type="test_template").count(),
-                )
+            self.assertEqual(
+                1,
+                MailTemplate.objects.filter(template_type="test_template").count(),
+            )
 
-        with self.subTest("not-unique language templates"):
-            with override_settings(MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES=False):
-                response = self.app.get(url, user=self.super_user)
-                form = response.forms["mailtemplate_form"]
-                form["template_type"] = "test_template"
-                form["subject"] = "mail subject"
-                form["body"] = "mail body"
-                response = form.submit().follow()
-                self.assertEqual(
-                    2,
-                    MailTemplate.objects.filter(template_type="test_template").count(),
-                )
+        with (
+            self.subTest("not-unique language templates"),
+            override_settings(MAIL_EDITOR_UNIQUE_LANGUAGE_TEMPLATES=False),
+        ):
+            response = self.app.get(url, user=self.super_user)
+            form = response.forms["mailtemplate_form"]
+            form["template_type"] = "test_template"
+            form["subject"] = "mail subject"
+            form["body"] = "mail body"
+            response = form.submit().follow()
+            self.assertEqual(
+                2,
+                MailTemplate.objects.filter(template_type="test_template").count(),
+            )
 
     def test_variable_view(self):
         template = find_template("test_template")
 
         url = reverse("admin:mailtemplate_variables", args=[template.template_type])
 
-        response = self.app.get(url, user=self.super_user)
+        self.app.get(url, user=self.super_user)
 
     def test_preview_view(self):
         template = find_template("test_template")
