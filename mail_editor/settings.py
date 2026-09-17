@@ -1,5 +1,3 @@
-import warnings
-
 from django.conf import settings as django_settings
 from django.utils.module_loading import import_string
 
@@ -14,15 +12,7 @@ class Settings:
     @property
     def TEMPLATES(self):
         # Available templates and variables for the mail editor.
-        tmp = getattr(django_settings, "MAIL_EDITOR_CONF", {})
-        if not tmp:
-            tmp = getattr(django_settings, "MAIL_EDITOR_TEMPLATES", {})
-            warnings.warn(
-                "Setting MAIL_EDITOR_TEMPLATES is deprecated, please use MAIL_EDITOR_CONF.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        return tmp
+        return getattr(django_settings, "MAIL_EDITOR_CONF", {})
 
     @property
     def BASE_CONTEXT(self):
