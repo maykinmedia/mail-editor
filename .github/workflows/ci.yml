@@ -60,11 +60,15 @@ jobs:
                   persist-credentials: false
             - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 #v6.2.0
               with:
-                  python-version: "3.13"
+                  python-version-file: "pyproject.toml"
+            - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d #v10.0.1
+              with:
+                  version: "0.9.22"
+                  enable-cache: false
 
             - name: Build sdist and wheel
               run: |
-                  pip install build --upgrade
+                  uv pip install --system build --upgrade
                   python -m build
 
             - name: Publish a Python distribution to PyPI
