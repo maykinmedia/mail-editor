@@ -16,8 +16,8 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     'Environment :: Web Environment',
     "Framework :: Django",
-    "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.1",
     "Intended Audience :: Developers",
     'License :: OSI Approved :: BSD License',
     "Operating System :: Unix",
@@ -31,9 +31,10 @@ classifiers = [
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-    "django>=4.2",
+    "django>=5.2",
+    "django-choices",
     "django-ckeditor",
     "requests",
     "lxml",
@@ -51,10 +52,7 @@ tests = [
     "pytest",
     "pytest-django",
     "tox",
-    "isort",
-    "black",
-    "flake8",
-    "autoflake",
+    "ruff",
     "django_webtest",
 ]
 coverage = [
@@ -70,12 +68,36 @@ include = ["mail_editor*"]
 exclude = ["tests", "testapp"]
 namespaces = false
 
-[tool.isort]
-profile = "black"
-combine_as_imports = true
-known_django = "django"
-known_first_party="mail_editor"
-sections=["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+[tool.ruff]
+line-length = 120
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+extend-select = [
+    "UP",  # pyupgrade
+    "DJ",  # django
+    "LOG", # logging
+    "G",
+    "I",   # isort
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "PERF",# perflint
+    "B",   # flake8-bugbear
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+section-order = [
+    "future",
+    "standard-library",
+    "django",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+
+[tool.ruff.lint.isort.sections]
+"django" = ["django"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -83,25 +83,19 @@ class ProcessHelpersTestCase(TestCase):
             with open(os.path.join(settings.STATIC_ROOT, "logo.png"), "rb") as f:
                 expected = f.read()
 
-            data = load_image(
-                "/static/logo.png", "http://testserver", static_url, media_url
-            )
+            data = load_image("/static/logo.png", "http://testserver", static_url, media_url)
             self.assertEqual(data.content, expected)
             self.assertEqual(data.content_type, "image/png")
 
         with self.subTest("static URL & SVG"):
-            data = load_image(
-                "/static/image.svg", "http://testserver", static_url, media_url
-            )
+            data = load_image("/static/image.svg", "http://testserver", static_url, media_url)
             self.assertIsNone(data)
 
         with self.subTest("media URL & JPG"):
             with open(os.path.join(settings.MEDIA_ROOT, "logo.jpg"), "rb") as f:
                 expected = f.read()
 
-            data = load_image(
-                "/media/logo.jpg", "http://testserver", static_url, media_url
-            )
+            data = load_image("/media/logo.jpg", "http://testserver", static_url, media_url)
             self.assertEqual(data.content, expected)
             self.assertEqual(data.content_type, "image/jpeg")
 
@@ -135,13 +129,9 @@ class ProcessHelpersTestCase(TestCase):
             self.assertIsNone(data)
 
         with self.subTest("static not exists"):
-            data = load_image(
-                "/static/not_exists.png", "http://testserver", static_url, media_url
-            )
+            data = load_image("/static/not_exists.png", "http://testserver", static_url, media_url)
             self.assertIsNone(data)
 
         with self.subTest("media not exists"):
-            data = load_image(
-                "/media/not_exists.png", "http://testserver", static_url, media_url
-            )
+            data = load_image("/media/not_exists.png", "http://testserver", static_url, media_url)
             self.assertIsNone(data)

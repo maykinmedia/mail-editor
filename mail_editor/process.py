@@ -1,7 +1,7 @@
 import hashlib
 import os
 from mimetypes import guess_type
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
@@ -54,8 +54,8 @@ def process_html(
     static_url = make_url_absolute(settings.STATIC_URL, base_url)
     media_url = make_url_absolute(settings.MEDIA_URL, base_url)
 
-    image_attachments = dict()
-    url_cid_cache = dict()
+    image_attachments = {}
+    url_cid_cache = {}
 
     absolute_attribs = [
         (".//a", "href"),
@@ -90,9 +90,7 @@ def process_html(
                     continue
                 cid = cid_for_bytes(data.content)
                 url_cid_cache[url] = cid
-                image_attachments[cid] = CIDAttachment(
-                    cid, data.content, data.content_type
-                )
+                image_attachments[cid] = CIDAttachment(cid, data.content, data.content_type)
 
             elem.set("src", f"cid:{cid}")
 
@@ -109,9 +107,7 @@ def process_html(
                 # remove this element because we don't want to load external stylesheets
                 elem.getparent().remove(elem)
 
-    result = etree.tostring(
-        root, encoding="utf8", pretty_print=False, method="html"
-    ).decode("utf8")
+    result = etree.tostring(root, encoding="utf8", pretty_print=False, method="html").decode("utf8")
 
     if inline_css:
         result = _html_inline_css(result)
@@ -127,9 +123,7 @@ def cid_for_bytes(content: bytes) -> str:
     return h.hexdigest()
 
 
-def load_image(
-    url: str, base_url: str, static_url: str, media_url: str
-) -> Optional[FileData]:
+def load_image(url: str, base_url: str, static_url: str, media_url: str) -> FileData | None:
     # TODO support data urls? steal from mailcleaner
     data = None
 
@@ -171,7 +165,7 @@ def load_image(
         return None
 
 
-def read_data_uri(uri: str) -> Optional[FileData]:
+def read_data_uri(uri: str) -> FileData | None:
     assert uri.startswith("data:")
 
     try:
@@ -180,7 +174,7 @@ def read_data_uri(uri: str) -> Optional[FileData]:
             content_type = response.headers.get("Content-Type")
             if content and content_type:
                 return FileData(content, content_type)
-    except Exception:
+    except Exception:  # noqa: BLE001, S110 - deliberately broad, see TODO above
         # TODO stricter exception types
         # we never want errors to block important mail
         # maybe we should log though
@@ -189,14 +183,14 @@ def read_data_uri(uri: str) -> Optional[FileData]:
     return None
 
 
-def read_image_file(path: str) -> Optional[FileData]:
+def read_image_file(path: str) -> FileData | None:
     try:
         with open(path, "rb") as f:
             content = f.read()
         # is guess_type() what we want or do we look in the content?
         content_type, _encoding = guess_type(path)
         return FileData(content, content_type)
-    except Exception:
+    except Exception:  # noqa: BLE001 - deliberately broad, see TODO above
         # TODO stricter exception types
         # we never want errors to block important mail
         # maybe we should log though
@@ -242,16 +236,16 @@ def _html_inline_css(html: str) -> str:
     try:
         html = inliner.inline(html)
         return html
-    except css_inline.InlineError as e:
+    except css_inline.InlineError:
         # we never want errors to block important mail
         # maybe we should log though
         if settings.DEBUG:
-            raise e
+            raise
         else:
             return html
 
 
-def _find_static_path_for_inliner(url: str, static_url: str) -> Optional[str]:
+def _find_static_path_for_inliner(url: str, static_url: str) -> str | None:
     if url.startswith(static_url):
         file_name = url[len(static_url) :]
         file_path = os.path.join(settings.STATIC_ROOT, file_name)

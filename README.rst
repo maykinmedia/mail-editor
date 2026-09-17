@@ -3,7 +3,7 @@ MailEditor
 
 :Version: 0.3.9
 
-|build-status| |code-quality| |black| |coverage|
+|build-status| |code-quality| |ruff| |coverage|
 
 |python-versions| |django-versions| |pypi-version|
 
@@ -32,7 +32,7 @@ This is only tested on a postgres database.
 Supported are:
 
 - python 3.11, 3.12, 3.13
-- Django 4.2, 5.2
+- Django 5.2, 6.1
 - PostgreSQL
 
 Warning
@@ -217,9 +217,8 @@ directory to the python path (or use ``python -m django <command>``):
      :alt: Code quality checks
      :target: https://github.com/maykinmedia/mail-editor/actions?query=workflow%3A%22Code+quality+checks%22
 
-.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
-    :alt: black
+.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
 
 .. |coverage| image:: https://codecov.io/github/maykinmedia/mail-editor/graph/badge.svg?token=NXCPTBOL6N
     :target: https://codecov.io/gh/maykinmedia/mail-editor

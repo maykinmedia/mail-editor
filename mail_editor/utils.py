@@ -23,4 +23,4 @@ def variable_help_text(template_type):
     subject_html += "</ul>"
     body_html += "</ul>"
 
-    return mark_safe("{}<br><br>{}".format(subject_html, body_html))
+    return mark_safe(f"{subject_html}<br><br>{body_html}")

@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         choices = get_choices()
-        for key, name in choices:
+        for key, _name in choices:
             if len(settings.LANGUAGES) > 1:
                 for language_code, _language_name in settings.LANGUAGES:
                     find_template(key, language_code)

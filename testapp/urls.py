@@ -8,6 +8,4 @@ urlpatterns = [
     path("maileditor/", include("mail_editor.urls")),
     path("admin/", admin.site.urls),
 ]
-urlpatterns += staticfiles_urlpatterns() + static(
-    settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
-)
+urlpatterns += staticfiles_urlpatterns() + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

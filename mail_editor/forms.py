@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django import forms
 from django.contrib.sites.shortcuts import get_current_site
 from django.template import loader
@@ -12,13 +14,13 @@ class MailTemplateForm(forms.ModelForm):
     class Meta:
         model = MailTemplate
         fields = ("template_type", "remarks", "subject", "body")
-        widgets = {
+        widgets: ClassVar = {
             "body": CKEditorWidget(config_name="mail_editor"),
             "template_type": forms.Select(choices=[]),
         }
 
     def __init__(self, *args, **kwargs):
-        super(MailTemplateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields["template_type"].widget.choices = get_choices()
 
@@ -27,7 +29,7 @@ class MailTemplateForm(forms.ModelForm):
         try:
             current_site = get_current_site(None)
             domain = current_site.domain
-        except Exception as e:
+        except Exception:  # noqa: BLE001 - sites framework may be unavailable/misconfigured
             domain = ""
 
         self.fields["body"].initial = template.render({"domain": domain}, None)

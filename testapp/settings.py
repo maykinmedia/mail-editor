@@ -45,9 +45,7 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
-        ],
+        "DIRS": [os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

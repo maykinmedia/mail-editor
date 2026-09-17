@@ -1,0 +1,4 @@
+# Reformat and fix lint findings from the ruff migration
+# (mechanical output of `ruff format`/`ruff check --fix`, no intentional
+# behavioural changes)
+199932e0fb6bfc12d54c90d461344d6262233d28
