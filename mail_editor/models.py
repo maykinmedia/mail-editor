@@ -62,7 +62,7 @@ class MailTemplateManager(models.Manager):
 class MailTemplate(models.Model):
     internal_name = models.CharField(max_length=255, default="", blank=True)
     template_type = models.CharField(_("type"), max_length=50)
-    language = models.CharField(max_length=10, blank=True, null=True)  # noqa: DJ001 - changing requires a migration
+    language = models.CharField(max_length=10, default="", blank=True)
 
     remarks = models.TextField(
         _("remarks"),
@@ -72,10 +72,10 @@ class MailTemplate(models.Model):
     )
     subject = models.CharField(_("subject"), max_length=255)
     body = models.TextField(_("body"), help_text=_("Add the body with {{variable}} placeholders"))
-    base_template_path = models.CharField(  # noqa: DJ001 - changing requires a migration
+    base_template_path = models.CharField(
         _("Base template path"),
         max_length=200,
-        null=True,
+        default="",
         blank=True,
         help_text="Leave empty for default template. Override to load a different template.",
     )

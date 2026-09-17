@@ -29,7 +29,7 @@ def find_template(template_name, language=None):
             },
         )
     else:
-        base_qs = MailTemplate.objects.filter(template_type=template_name, language__isnull=True)
+        base_qs = MailTemplate.objects.filter(template_type=template_name, language="")
         if base_qs.exists():
             template = base_qs.first()
         else:
