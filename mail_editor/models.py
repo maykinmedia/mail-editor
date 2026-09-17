@@ -23,6 +23,21 @@ from .utils import variable_help_text
 logger = logging.getLogger(__name__)
 
 
+class RelatedEmailMultiAlternatives(EmailMultiAlternatives):
+    """
+    Email with inline (Content-ID referenced) attachments wrapped in a
+    multipart/related container instead of multipart/mixed, so mail clients
+    treat them as resources of the HTML body rather than standalone
+    attachments.
+    """
+
+    def message(self):
+        msg = super().message()
+        if self.attachments:
+            msg.set_type("multipart/related")
+        return msg
+
+
 class MailTemplateManager(models.Manager):
     def get_for_language(self, template_type, language):
         """
@@ -187,7 +202,7 @@ class MailTemplate(models.Model):
 
         text_body = txt or strip_tags(result.html)
 
-        email_message = EmailMultiAlternatives(
+        email_message = RelatedEmailMultiAlternatives(
             subject=subject,
             body=text_body,
             from_email=django_settings.DEFAULT_FROM_EMAIL,
@@ -196,7 +211,6 @@ class MailTemplate(models.Model):
             bcc=bcc_addresses,
         )
         email_message.attach_alternative(result.html, "text/html")
-        email_message.mixed_subtype = "related"
 
         if attachments:
             for attachment in attachments:

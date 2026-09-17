@@ -32,7 +32,7 @@ This is only tested on a postgres database.
 Supported are:
 
 - python 3.11, 3.12, 3.13
-- Django 4.2, 5.2
+- Django 5.2, 6.1
 - PostgreSQL
 
 Warning
